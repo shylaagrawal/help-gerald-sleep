@@ -62,14 +62,13 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 .btn-large{padding:1rem 2.4rem;font-size:1.05rem;}
 
 /* ============================================
-   Hero
+   Top band: hero + counter, side by side
    ============================================ */
-.hero{
+.top-band{
   position:relative;
   overflow:hidden;
   background:radial-gradient(120% 140% at 50% -10%, var(--night-600) 0%, var(--night-900) 60%);
-  padding:4rem 1.5rem 5rem;
-  text-align:center;
+  padding:4rem 1.5rem;
   color:var(--moon-50);
 }
 .sky{
@@ -82,8 +81,32 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
     radial-gradient(1px 1px at 25% 60%, rgba(251,247,237,0.3) 50%, transparent 51%);
   opacity:0.9;
 }
-.hero-inner{position:relative;max-width:640px;margin:0 auto;}
+.top-band-inner{
+  position:relative;
+  max-width:1080px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3rem;
+  text-align:center;
+}
+@media(min-width:860px){
+  .top-band-inner{
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    gap:2.5rem;
+    text-align:left;
+  }
+  .hero-col{flex:1.15;}
+  .counter-col{flex:0.85;}
+}
+.hero-col{max-width:480px;}
 .mark-wrap{display:flex;justify-content:center;margin-bottom:0.5rem;}
+@media(min-width:860px){
+  .mark-wrap{justify-content:flex-start;}
+}
 .gerald-mark{width:180px;height:180px;}
 
 .gerald-mark .car-zoom{animation:zoom 3.2s ease-in-out infinite;}
@@ -103,31 +126,36 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   .gerald-mark .car-zoom, .gerald-mark .zzz{animation:none;}
 }
 
-.hero h1{font-size:clamp(2.3rem,6vw,3.4rem);margin-bottom:1rem;}
+.hero-col h1{font-size:clamp(2.3rem,6vw,3.4rem);margin-bottom:1rem;}
 .tagline{
   font-style:italic;
   font-size:1.05rem;
   line-height:1.6;
   color:var(--moon-100);
   opacity:0.9;
-  max-width:520px;
-  margin:0 auto 2rem;
+  margin:0 0 2rem;
+}
+@media(max-width:859px){
+  .tagline{max-width:480px;margin:0 auto 2rem;}
 }
 
 /* ============================================
-   Counter band
+   Counter column
    ============================================ */
-.counter-band{
+.counter-col{
   position:relative;
-  background:var(--night-900);
-  color:var(--moon-50);
   text-align:center;
-  padding:3rem 1.5rem 3.5rem;
+  padding:2.5rem 1.5rem;
+  background:rgba(251,247,237,0.04);
+  border:1px solid rgba(251,247,237,0.1);
+  border-radius:20px;
   overflow:hidden;
+  width:100%;
+  max-width:340px;
 }
 .counter-glow{
-  position:absolute;top:-40%;left:50%;transform:translateX(-50%);
-  width:420px;height:420px;
+  position:absolute;top:-30%;left:50%;transform:translateX(-50%);
+  width:320px;height:320px;
   background:radial-gradient(circle, rgba(243,195,116,0.35) 0%, transparent 70%);
 }
 .counter-eyebrow{
