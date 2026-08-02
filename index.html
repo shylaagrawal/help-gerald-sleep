@@ -6,7 +6,7 @@
 <title>Help Gerald Sleep — Quieter Nights in Bothell</title>
 <meta name="description" content="A Bothell, WA neighborhood campaign to reduce nighttime speeding and road noise, backed by six years of Snohomish County traffic data.">
 
-<link rel="icon" href="assets/favicon.png" type="image/png">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -21,46 +21,25 @@
   <div class="top-band-inner">
     <div class="hero-col">
       <div class="mark-wrap">
-        <svg class="gerald-mark" viewBox="0 0 220 220" role="img" aria-label="Gerald the goose, asleep with his eyes open, under a streetlamp while a car speeds past">
-          <!-- streetlamp glow -->
-          <circle cx="172" cy="46" r="34" fill="url(#glow)"/>
-          <!-- lamp post -->
-          <line x1="172" y1="46" x2="172" y2="120" stroke="#4A5064" stroke-width="4" stroke-linecap="round"/>
-          <path d="M158 46 h28 l-6 -14 h-16 z" fill="#4A5064"/>
-          <circle cx="172" cy="46" r="8" fill="#FBF7ED"/>
-
-          <!-- speeding car silhouette + motion lines -->
-          <g class="car-zoom">
-            <rect x="4" y="150" width="46" height="16" rx="6" fill="#C1502E"/>
-            <rect x="12" y="140" width="26" height="14" rx="4" fill="#C1502E"/>
-            <circle cx="16" cy="168" r="6" fill="#2A2E3A"/>
-            <circle cx="40" cy="168" r="6" fill="#2A2E3A"/>
-            <line x1="-18" y1="150" x2="0" y2="150" stroke="#C1502E" stroke-width="3" stroke-linecap="round"/>
-            <line x1="-26" y1="160" x2="-2" y2="160" stroke="#C1502E" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
-            <line x1="-14" y1="170" x2="4" y2="170" stroke="#C1502E" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
-          </g>
-
-          <!-- Gerald, asleep, eyes open -->
-          <g class="gerald">
-            <ellipse cx="110" cy="150" rx="46" ry="34" fill="#FBF7ED"/>
-            <path d="M84 130 C70 108 78 78 108 76 C130 74 138 96 128 112 C150 108 158 128 142 138 C150 146 144 160 130 156 C120 168 96 168 88 154 C74 154 72 138 84 130 Z" fill="#FBF7ED"/>
-            <path d="M126 88 C138 84 148 90 146 100 C144 108 132 108 126 100 Z" fill="#E9A23B"/>
-            <circle cx="118" cy="92" r="4.6" fill="#2A2E3A"/>
-            <circle cx="119.5" cy="90.5" r="1.3" fill="#FBF7ED"/>
-            <path d="M96 158 C100 168 122 168 128 156" stroke="#DDD4C0" stroke-width="3" fill="none" stroke-linecap="round"/>
-          </g>
-
-          <defs>
-            <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#F3C374" stop-opacity="0.55"/>
-              <stop offset="100%" stop-color="#F3C374" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-        </svg>
+        <div class="gerald-scene">
+          <svg class="car-track" viewBox="0 0 220 220" aria-hidden="true">
+            <!-- speeding car silhouette + motion lines -->
+            <g class="car-zoom">
+              <rect x="4" y="150" width="46" height="16" rx="6" fill="#C1502E"/>
+              <rect x="12" y="140" width="26" height="14" rx="4" fill="#C1502E"/>
+              <circle cx="16" cy="168" r="6" fill="#2A2E3A"/>
+              <circle cx="40" cy="168" r="6" fill="#2A2E3A"/>
+              <line x1="-18" y1="150" x2="0" y2="150" stroke="#C1502E" stroke-width="3" stroke-linecap="round"/>
+              <line x1="-26" y1="160" x2="-2" y2="160" stroke="#C1502E" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+              <line x1="-14" y1="170" x2="4" y2="170" stroke="#C1502E" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+            </g>
+          </svg>
+          <img src="assets/hero-graphic.png" alt="Gerald the goose, asleep with his eyes open, under a streetlamp" class="gerald-img">
+        </div>
       </div>
 
       <h1>Help Gerald Sleep</h1>
-      <p class="tagline">Gerald is a goose — and he's a lot like you and me. From 11&nbsp;PM to 5&nbsp;AM, loud road noise won't let him sleep. Help us quiet the streets at night, and Bothell can rest easy.</p>
+      <p class="tagline">Gerald is a goose — and he's a lot like you and me. From 11&nbsp;PM to 5&nbsp;AM, loud road noise won't let him rest. Help us quiet the streets at night, and Bothell sleeps easy.</p>
     </div>
 
     <div class="counter-col" aria-label="Community support counter">
