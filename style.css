@@ -120,9 +120,8 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 @media(min-width:860px){
   .mark-wrap{justify-content:flex-start;}
 }
-.gerald-scene{position:relative;width:400px;height:400px;}
-.car-track{position:absolute;inset:0;width:100%;height:100%;z-index:1;}
-.gerald-img{
+.gerald-scene{position:relative;width:350px;height:350px;}
+.car-track{position:absolute;inset:0;width:100%;height:100%;z-index:1;overflow:visible;}.gerald-img{
   position:absolute;inset:0;
   width:100%;height:100%;
   object-fit:contain;
@@ -132,9 +131,9 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 
 .car-track .car-zoom{animation:zoom 3.2s ease-in-out infinite;}
 @keyframes zoom{
-  0%{transform:translateX(0);opacity:0;}
-  8%{opacity:1;}
-  55%{transform:translateX(300px);opacity:1;}
+  0%{transform:translateX(-340px);opacity:0;}
+  20%{opacity:1;}
+  55%{transform:translateX(40px);opacity:1;}
   85%{transform:translateX(340px);opacity:0;}
   100%{transform:translateX(340px);opacity:0;}
 }
@@ -161,13 +160,13 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 .counter-col{
   position:relative;
   text-align:center;
-  padding:3.5rem 2.5rem;
+  padding:4.5rem 3rem;
   background:rgba(251,247,237,0.05);
   border:1px solid rgba(251,247,237,0.12);
   border-radius:24px;
   overflow:hidden;
   width:100%;
-  max-width:420px;
+  max-width:500px;
 }
 .counter-glow{
   position:absolute;top:-25%;left:50%;transform:translateX(-50%);
