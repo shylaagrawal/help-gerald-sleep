@@ -133,7 +133,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 .car-track .car-zoom{animation:zoom 3.2s ease-in-out infinite;}
 @keyframes zoom{
   0%{transform:translateX(0);opacity:0;}
-  20%{opacity:1;}
+  8%{opacity:1;}
   55%{transform:translateX(300px);opacity:1;}
   85%{transform:translateX(340px);opacity:0;}
   100%{transform:translateX(340px);opacity:0;}
