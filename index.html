@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help Gerald Sleep — Quieter Nights in Bothell</title>
+<meta name="description" content="A Bothell, WA neighborhood campaign to reduce nighttime speeding and road noise, backed by six years of Snohomish County traffic data.">
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="sky" aria-hidden="true"></div>
+
+  <div class="hero-inner">
+    <div class="mark-wrap">
+      <svg class="gerald-mark" viewBox="0 0 220 220" role="img" aria-label="Gerald the goose, asleep with his eyes open, under a streetlamp while a car speeds past">
+        <!-- streetlamp glow -->
+        <circle cx="172" cy="46" r="34" fill="url(#glow)"/>
+        <!-- lamp post -->
+        <line x1="172" y1="46" x2="172" y2="120" stroke="#4A5064" stroke-width="4" stroke-linecap="round"/>
+        <path d="M158 46 h28 l-6 -14 h-16 z" fill="#4A5064"/>
+        <circle cx="172" cy="46" r="8" fill="#FBF7ED"/>
+
+        <!-- speeding car silhouette + motion lines -->
+        <g class="car-zoom">
+          <rect x="4" y="150" width="46" height="16" rx="6" fill="#C1502E"/>
+          <rect x="12" y="140" width="26" height="14" rx="4" fill="#C1502E"/>
+          <circle cx="16" cy="168" r="6" fill="#2A2E3A"/>
+          <circle cx="40" cy="168" r="6" fill="#2A2E3A"/>
+          <line x1="-18" y1="150" x2="0" y2="150" stroke="#C1502E" stroke-width="3" stroke-linecap="round"/>
+          <line x1="-26" y1="160" x2="-2" y2="160" stroke="#C1502E" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+          <line x1="-14" y1="170" x2="4" y2="170" stroke="#C1502E" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+        </g>
+
+        <!-- Gerald, asleep, eyes open -->
+        <g class="gerald">
+          <ellipse cx="110" cy="150" rx="46" ry="34" fill="#FBF7ED"/>
+          <path d="M84 130 C70 108 78 78 108 76 C130 74 138 96 128 112 C150 108 158 128 142 138 C150 146 144 160 130 156 C120 168 96 168 88 154 C74 154 72 138 84 130 Z" fill="#FBF7ED"/>
+          <path d="M126 88 C138 84 148 90 146 100 C144 108 132 108 126 100 Z" fill="#E9A23B"/>
+          <circle cx="118" cy="92" r="4.6" fill="#2A2E3A"/>
+          <circle cx="119.5" cy="90.5" r="1.3" fill="#FBF7ED"/>
+          <path d="M96 158 C100 168 122 168 128 156" stroke="#DDD4C0" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M180 40 q6 -6 12 0 q6 -6 12 0" stroke="#F3C374" stroke-width="3" fill="none" stroke-linecap="round" class="zzz"/>
+        </g>
+
+        <defs>
+          <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#F3C374" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#F3C374" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <h1>Help Gerald Sleep</h1>
+    <p class="tagline">Gerald is a goose — and he's a lot like you and me. From 11&nbsp;PM to 5&nbsp;AM, loud road noise won't let him rest. Help us quiet the streets at night, and Bothell sleeps easy.</p>
+    <a href="#support" class="btn btn-amber">Add your name</a>
+  </div>
+</header>
+
+<!-- ============ COUNTER ============ -->
+<section class="counter-band" aria-label="Community support counter">
+  <div class="counter-glow" aria-hidden="true"></div>
+  <p class="counter-eyebrow">Neighbors standing with Gerald</p>
+  <p class="counter-number" id="counterNumber" data-target="0">0</p>
+  <p class="counter-label">Bothell residents supporting quieter nights — and counting.</p>
+</section>
+
+<!-- ============ STORY ============ -->
+<section class="story" id="story">
+  <div class="story-grid">
+    <div class="story-text">
+      <p class="eyebrow">Why this started</p>
+      <h2>A main road, a light sleeper, and a pattern I couldn't ignore</h2>
+      <p>I live next to a main road in the suburbs of Seattle. Late at night, cars sometimes race through the street at high speeds — engines revving, tires cutting through the quiet. At first it just annoyed me: it woke my family and pulled my focus off my work. Then I learned Snohomish County records the highest rate of traffic casualties in Washington State, with over 400 crashes here in the last ten years. This stopped being an annoyance and started looking like a public safety and public health issue.</p>
+      <p>I began researching neighborhood road safety efforts across the country and found others tracking speeding with simple sensors and sound data. That led to a research project analyzing six years of Snohomish County traffic data — and eventually, to speaking directly with the county about what the data shows.</p>
+      <p>Now I'm going door to door in my own neighborhood, because the data is only half the argument. The other half is knowing how many of us are actually losing sleep over it.</p>
+    </div>
+
+    <div class="story-video">
+      <div class="video-frame">
+        <div class="video-frame-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="video-frame-label">Speaking to Snohomish County</span>
+        </div>
+        <div class="video-embed">
+          <iframe
+            src="https://www.youtube.com/embed/REPLACE_WITH_VIDEO_ID"
+            title="Shyla Agrawal addressing Snohomish County on road noise"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            loading="lazy"></iframe>
+        </div>
+      </div>
+      <p class="video-caption">Watch: presenting six years of traffic data to Snohomish County.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESEARCH ============ -->
+<section class="research" id="research">
+  <p class="eyebrow eyebrow-dark">The data behind Gerald</p>
+  <h2>Six years of county traffic data, four findings</h2>
+  <p class="research-intro">Every stat below comes from Snohomish County Public Works traffic counts, Washington Traffic Safety Commission fatality records, and vehicle noise data, analyzed alongside my research partner <strong>Swarali Karale</strong> in our paper, <em>The Impacts of Speeding on Noise Levels and Public Safety in Snohomish County</em>.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <p class="stat-number">4–10 dB</p>
+      <p class="stat-label">over the WHO nighttime noise limit</p>
+      <p class="stat-detail">SnoCo's average nighttime road noise consistently exceeds the WHO's 45 dB guideline — and every 4 dB roughly doubles perceived loudness.</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-number">12 – 3 AM</p>
+      <p class="stat-label">is when speeding outliers peak</p>
+      <p class="stat-detail">When roads are clearest, speeds vary the most. Drivers going well above the limit are most common exactly when the neighborhood is trying to sleep.</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-number">~32%</p>
+      <p class="stat-label">less sound energy at &minus;15 mph</p>
+      <p class="stat-detail">Our machine learning model simulated a 15 mph reduction in speed limits county-wide and found it could cut total sound energy by roughly a third.</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-number">94.3%</p>
+      <p class="stat-label">of local vehicles are gas-powered</p>
+      <p class="stat-detail">Gas vehicles dominate both SnoCo's vehicle mix and its noise contribution, especially as speed increases.</p>
+    </div>
+  </div>
+
+  <a class="paper-link" href="https://github.com/NCHS-CS/idp-final-project-25-26-shylaa-swaralik/blob/main/README.md" target="_blank" rel="noopener">Read the full paper &amp; data sources →</a>
+</section>
+
+<!-- ============ SUPPORT CTA ============ -->
+<section class="support" id="support">
+  <p class="eyebrow">Join the neighborhood</p>
+  <h2>Add your voice</h2>
+  <p class="support-copy">If road noise at night bothers you or your family, say so. Every signature helps show the county this isn't just one house on one street — it's a neighborhood.</p>
+  <a href="REPLACE_WITH_GOOGLE_FORM_LINK" class="btn btn-amber btn-large" target="_blank" rel="noopener">Sign the petition</a>
+  <p class="support-note">Takes about a minute. Already spoke with someone at your door? Thank you — this is the last step.</p>
+</section>
+
+<!-- ============ STICKY CTA ============ -->
+<a href="#support" class="sticky-cta" id="stickyCta">Sign the petition</a>
+
+<footer class="site-footer">
+  <p>Help Gerald Sleep is a neighborhood road-safety initiative started by Shyla Agrawal, NCHS, Bothell WA.</p>
+  <p>Research conducted with Swarali Karale · Data: Snohomish County Public Works &amp; Washington Traffic Safety Commission</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
