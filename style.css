@@ -199,7 +199,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   line-height:1.5;
 }
 
-.counter-col .btn{margin-top:1.75rem;}
+.counter-col .btn{margin-top:2.5rem;}
 .story{padding:5rem 1.5rem;max-width:1080px;margin:0 auto;}
 .story-grid{display:grid;grid-template-columns:1fr;gap:3rem;align-items:start;}
 @media(min-width:860px){
