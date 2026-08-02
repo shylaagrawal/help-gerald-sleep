@@ -120,7 +120,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 @media(min-width:860px){
   .mark-wrap{justify-content:flex-start;}
 }
-.gerald-scene{position:relative;width:600px;height:600px;}
+.gerald-scene{position:relative;width:500px;height:500px;}
 .car-track{position:absolute;inset:0;width:100%;height:100%;z-index:1;}
 .gerald-img{
   position:absolute;inset:0;
