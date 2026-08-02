@@ -78,7 +78,20 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
     radial-gradient(1.5px 1.5px at 78% 15%, rgba(251,247,237,0.4) 50%, transparent 51%),
     radial-gradient(1px 1px at 40% 8%, rgba(251,247,237,0.35) 50%, transparent 51%),
     radial-gradient(1.5px 1.5px at 88% 55%, rgba(251,247,237,0.3) 50%, transparent 51%),
-    radial-gradient(1px 1px at 25% 60%, rgba(251,247,237,0.3) 50%, transparent 51%);
+    radial-gradient(1px 1px at 25% 60%, rgba(251,247,237,0.3) 50%, transparent 51%),
+    radial-gradient(1px 1px at 5% 45%, rgba(251,247,237,0.3) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 60% 5%, rgba(251,247,237,0.4) 50%, transparent 51%),
+    radial-gradient(1px 1px at 95% 30%, rgba(251,247,237,0.35) 50%, transparent 51%),
+    radial-gradient(1px 1px at 33% 35%, rgba(251,247,237,0.28) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 70% 70%, rgba(251,247,237,0.3) 50%, transparent 51%),
+    radial-gradient(1px 1px at 17% 78%, rgba(251,247,237,0.25) 50%, transparent 51%),
+    radial-gradient(1px 1px at 50% 88%, rgba(251,247,237,0.25) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 8% 10%, rgba(251,247,237,0.35) 50%, transparent 51%),
+    radial-gradient(1px 1px at 46% 50%, rgba(251,247,237,0.25) 50%, transparent 51%),
+    radial-gradient(1px 1px at 82% 82%, rgba(251,247,237,0.3) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 63% 40%, rgba(251,247,237,0.32) 50%, transparent 51%),
+    radial-gradient(1px 1px at 92% 92%, rgba(251,247,237,0.25) 50%, transparent 51%),
+    radial-gradient(1px 1px at 28% 92%, rgba(251,247,237,0.22) 50%, transparent 51%);
   opacity:0.9;
 }
 .top-band-inner{
@@ -94,7 +107,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 @media(min-width:860px){
   .top-band-inner{
     flex-direction:row;
-    align-items:center;
+    align-items:flex-start;
     justify-content:center;
     gap:1.75rem;
     text-align:left;
@@ -186,9 +199,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   line-height:1.5;
 }
 
-/* ============================================
-   Story
-   ============================================ */
+.counter-col .btn{margin-top:1.75rem;}
 .story{padding:5rem 1.5rem;max-width:1080px;margin:0 auto;}
 .story-grid{display:grid;grid-template-columns:1fr;gap:3rem;align-items:start;}
 @media(min-width:860px){
