@@ -134,9 +134,9 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 @keyframes zoom{
   0%{transform:translateX(0);opacity:0;}
   8%{opacity:1;}
-  45%{transform:translateX(230px);opacity:1;}
-  55%{opacity:0;}
-  100%{transform:translateX(230px);opacity:0;}
+  55%{transform:translateX(300px);opacity:1;}
+  85%{transform:translateX(340px);opacity:0;}
+  100%{transform:translateX(340px);opacity:0;}
 }
 @media (prefers-reduced-motion:reduce){
   .car-track .car-zoom{animation:none;}
