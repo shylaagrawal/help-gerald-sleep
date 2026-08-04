@@ -106,13 +106,13 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 }
 @media(min-width:860px){
   .top-band-inner{
-    flex-direction:row;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:1rem;
-    text-align:left;
-  }
-  .hero-col{flex:1;}
+  flex-direction:row;
+  align-items:flex-start;
+  justify-content:flex-start;
+  gap:1.75rem;
+  text-align:left;
+}
+  .hero-col{flex:0 1 480px;}
   .counter-col{flex:0 0 300px;}
 }
 .hero-col{max-width:480px;}
