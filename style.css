@@ -113,7 +113,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
     text-align:left;
   }
   .hero-col{flex:1;}
-  .counter-col{flex:0 0 300px;margin-left:auto;}
+  .counter-col{flex:0 0 300px;}
 }
 .hero-col{max-width:480px;}
 .mark-wrap{display:flex;justify-content:center;margin-bottom:0.5rem;}
