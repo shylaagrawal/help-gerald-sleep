@@ -531,4 +531,15 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 
 /* About page: nudge photo down to align with body text, not the heading */
 #bio .story-video{margin-top:2.5rem;}
-#bio{background:var(--moon-100);}
+
+/* About page: full-bleed cream background */
+#bio{
+  max-width:none;
+  margin:0;
+  background:var(--moon-100);
+}
+#bio .story-text{
+  max-width:1080px;
+  margin:0 auto;
+}
+#bio .eyebrow{color:var(--amber-500);}
