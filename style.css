@@ -221,7 +221,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 
 .story-video{
   float:right;
-  width:260px;
+  width:180px;
   margin:0 0 1.5rem 2.5rem;
 }
 @media(max-width:640px){
@@ -247,7 +247,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   color:#8A90A3;
   letter-spacing:0.04em;
 }
-.video-embed{position:relative;padding-top:56.25%;}
+.video-embed{position:relative;padding-top:177.78%;}
 .video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
 .video-caption{
   font-size:0.85rem;
