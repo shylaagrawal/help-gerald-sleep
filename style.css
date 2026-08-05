@@ -108,8 +108,8 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   .top-band-inner{
   flex-direction:row;
   align-items:flex-start;
-  justify-content:flex-start;
-  gap:3rem;
+  justify-content:space-between;
+  gap:1.75rem;
   text-align:left;
 }
   .hero-col{flex:0 1 480px;}
