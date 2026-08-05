@@ -53,3 +53,50 @@ function initStickyCta() {
 
 loadCounter();
 initStickyCta();
+
+// Mobile nav toggle
+function initNavToggle() {
+  const toggle = document.getElementById('navToggle');
+  const links = document.getElementById('navLinks');
+  if (!toggle || !links) return;
+
+  toggle.addEventListener('click', () => {
+    const open = links.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+}
+
+// Contact form (Formspree) — submits without leaving the page
+function initContactForm() {
+  const form = document.getElementById('contactForm');
+  const status = document.getElementById('formStatus');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    status.textContent = 'Sending…';
+    status.className = 'form-status';
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        form.reset();
+        status.textContent = "Thanks — your message is on its way.";
+        status.className = 'form-status success';
+      } else {
+        status.textContent = "Something went wrong. Please try again.";
+        status.className = 'form-status error';
+      }
+    } catch (err) {
+      status.textContent = "Something went wrong. Please try again.";
+      status.className = 'form-status error';
+    }
+  });
+}
+
+initNavToggle();
+initContactForm();
