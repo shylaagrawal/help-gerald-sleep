@@ -528,3 +528,6 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 
 .credit-grid{grid-template-columns:repeat(auto-fit, minmax(260px,1fr));max-width:720px;}
 .credit-grid .stat-label{font-size:1.05rem;margin-bottom:0.5rem;}
+
+/* About page: nudge photo down to align with body text, not the heading */
+#bio .story-video{margin-top:2.5rem;}
