@@ -225,7 +225,11 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   margin:0 0 1.5rem 2.5rem;
 }
 @media(max-width:640px){
-  .story-video{float:none;width:100%;margin:0 0 2rem;}
+  .story-text{display:flex;flex-direction:column;}
+  .story-text .eyebrow{order:1;}
+  .story-text h2{order:2;}
+  .story-text p{order:3;}
+  .story-video{float:none;width:100%;margin:2rem 0 0;order:4;}
 }
 
 .video-frame{
