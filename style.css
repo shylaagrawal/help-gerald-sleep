@@ -108,12 +108,12 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   .top-band-inner{
     flex-direction:row;
     align-items:flex-start;
-    justify-content:space-between;
+    justify-content:space-evenly;
     gap:1.75rem;
     text-align:left;
   }
-  .hero-col{flex:1;}
-  .counter-col{flex:0 0 300px;margin-left:auto;}
+  .hero-col{flex:0 1 480px;}
+  .counter-col{flex:0 0 360px;}
 }
 .hero-col{max-width:480px;}
 .mark-wrap{display:flex;justify-content:center;margin-bottom:0.5rem;}
@@ -171,7 +171,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   border-radius:24px;
   overflow:hidden;
   width:100%;
-  max-width:300px;
+  max-width:360px;
   min-height:460px;
   margin-top:3.5rem;
 }
