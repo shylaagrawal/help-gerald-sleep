@@ -531,3 +531,4 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 
 /* About page: nudge photo down to align with body text, not the heading */
 #bio .story-video{margin-top:2.5rem;}
+#bio{background:var(--moon-100);}
