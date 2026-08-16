@@ -2,24 +2,38 @@
 // Help Gerald Sleep — counter + sticky CTA
 // ============================================
 
-// The counter reads how many supporters to show from counter.json.
-// To update the number after a canvassing session, open counter.json
-// and change "count" to the new total, then commit + push the change.
-// (See README.md for the optional "live" Google Sheet version.)
+// The counter reads how many supporters to show from your Google Apps Script
+// endpoint, which returns only the row count from your form's response
+// sheet — never names, addresses, or signature photos. If that fails for
+// any reason (endpoint down, not deployed yet, etc.), it falls back to the
+// number in counter.json so the page never breaks.
+const COUNTER_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz10hRsSAU52UgowbcbOudLwOu6WCEQN8MlyOBATrLf-IHpZ584bBYTQhLBfddJpKpP/exec';
 
 async function loadCounter() {
   const el = document.getElementById('counterNumber');
   let target = parseInt(el.dataset.target, 10) || 0;
 
   try {
-    const res = await fetch('counter.json', { cache: 'no-store' });
+    const res = await fetch(COUNTER_ENDPOINT, { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       if (typeof data.count === 'number') target = data.count;
+    } else {
+      throw new Error('Apps Script endpoint returned an error');
     }
   } catch (err) {
-    // counter.json missing or unreachable (e.g. opened as a local file) —
-    // fall back to the data-target value already on the element.
+    // Apps Script endpoint unreachable — fall back to the manually
+    // edited counter.json instead.
+    try {
+      const res = await fetch('counter.json', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.count === 'number') target = data.count;
+      }
+    } catch (err2) {
+      // both sources unreachable — fall back to the data-target value
+      // already on the element.
+    }
   }
 
   animateCount(el, target);
