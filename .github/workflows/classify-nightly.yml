@@ -5,7 +5,7 @@ on:
     # 15:00 UTC = 8:00 AM PDT (Pacific Daylight Time, UTC-7).
     # If clocks shift to PST (UTC-8) this becomes 7:00 AM PST -- close enough
     # either way, since Gerald's own upload finishes by ~7:05 AM.
-    - cron: '0 15 * * *'
+    - cron: '0 14 * * *'
   workflow_dispatch: {}  # lets you manually trigger a run from the Actions tab
 
 permissions:
