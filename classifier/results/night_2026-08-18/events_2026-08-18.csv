@@ -1,5 +1,0 @@
-event_id,start,end,loud_duration_seconds,peak_time,peak_db,baseline_db,clip_window_start,clip_window_end,clip_duration_seconds,clip_file
-0,2026-08-19T05:08:01,2026-08-19T05:08:06,5.0,2026-08-19T05:08:05,74.63,51.46,2026-08-19T05:07:46,2026-08-19T05:08:21,35.0,/home/shyla_agrawal/gerald_night_data/night_2026-08-18/peak_audio_clips_2026-08-18/2026-08-19_05-08-05.wav
-1,2026-08-19T06:01:59,2026-08-19T06:02:08,9.0,2026-08-19T06:02:02,85.7,56.23,2026-08-19T06:01:44,2026-08-19T06:02:23,39.0,/home/shyla_agrawal/gerald_night_data/night_2026-08-18/peak_audio_clips_2026-08-18/2026-08-19_06-02-02.wav
-2,2026-08-19T06:07:53,2026-08-19T06:07:58,5.0,2026-08-19T06:07:56,76.7,53.26,2026-08-19T06:07:38,2026-08-19T06:08:13,35.0,/home/shyla_agrawal/gerald_night_data/night_2026-08-18/peak_audio_clips_2026-08-18/2026-08-19_06-07-56.wav
-3,2026-08-19T06:19:05,2026-08-19T06:19:07,2.0,2026-08-19T06:19:06,79.72,61.17,2026-08-19T06:18:50,2026-08-19T06:19:22,32.0,/home/shyla_agrawal/gerald_night_data/night_2026-08-18/peak_audio_clips_2026-08-18/2026-08-19_06-19-06.wav
