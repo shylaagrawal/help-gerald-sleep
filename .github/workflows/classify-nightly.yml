@@ -8,6 +8,9 @@ on:
     - cron: '0 15 * * *'
   workflow_dispatch: {}  # lets you manually trigger a run from the Actions tab
 
+permissions:
+  contents: write
+
 jobs:
   classify:
     runs-on: ubuntu-latest
