@@ -24,9 +24,11 @@ jobs:
         run: curl https://rclone.org/install.sh | sudo bash
 
       - name: Set up rclone config
+        env:
+          RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
         run: |
           mkdir -p ~/.config/rclone
-          printf '%s' "${{ secrets.RCLONE_CONF }}" > ~/.config/rclone/rclone.conf
+          printf '%s' "$RCLONE_CONF" > ~/.config/rclone/rclone.conf
 
       - name: Install Python dependencies
         run: pip install -r classifier/requirements.txt
