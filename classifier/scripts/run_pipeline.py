@@ -21,6 +21,7 @@ import shutil
  
 sys.path.insert(0, os.path.dirname(__file__))
 import classify_clips
+import analyze_events
  
 REMOTE = "gdrive:gerald_backups/"
 RESULTS_DIR = "classifier/results"
@@ -89,6 +90,11 @@ def main():
             print(f"  Classification failed for {date_str}: {e}")
             # Don't mark as processed -- we want to retry this night next run
             continue
+
+        try:
+            analyze_events.process_night(date_str)
+        except Exception as e:
+            print(f" Analyzing failed for {date_str}: {e}")
  
         # Keep only the CSVs, drop the raw audio clips to keep repo size sane
         clips_dir = os.path.join(night_dir, f"peak_audio_clips_{date_str}")
