@@ -42,7 +42,7 @@ def save_manifest(processed):
  
 def list_remote_zips():
     result = subprocess.run(
-        ["rclone", "lsf", REMOTE, "--include", "*.zip"],
+        ["rclone", "lsf", REMOTE, "--include", "*.zip", "--files-only"],
         capture_output=True, text=True,
     )
     if result.returncode != 0:
