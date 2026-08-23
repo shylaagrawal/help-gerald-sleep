@@ -31,7 +31,7 @@ VEHICLE_KEYWORDS = [
 # after looking at real results -- if too many real cars are being marked
 # false, lower it; if too many non-vehicle sounds are slipping through,
 # raise it.
-VEHICLE_CONFIDENCE_THRESHOLD = 0.05
+VEHICLE_CONFIDENCE_THRESHOLD = 0.025
 
 
 def load_class_names(model):
