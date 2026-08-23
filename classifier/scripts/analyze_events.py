@@ -90,17 +90,17 @@ def compute_centroid(rows, event_start, event_end):
 
 def process_night(date_str):
     night_dir = os.path.join(RESULTS_BASE, f"night_{date_str}")
-    classified_path = os.path.join(night_dir, f"classified_{date_str}.csv")
-    csv_path = os.path.join(night_dir, f"csv_{date_str}.csv")
-    out_path = os.path.join(night_dir, f"results_{date_str}.csv")
+    peaks_path = os.path.join(night_dir, f"peaks_{date_str}.csv")
+    raw_data_path = os.path.join(night_dir, f"raw_data_{date_str}.csv")
+    out_path = os.path.join(night_dir, f"final_isolated_results_{date_str}.csv")
 
-    if not os.path.exists(classified_path) or not os.path.exists(csv_path):
+    if not os.path.exists(peaks_path) or not os.path.exists(raw_data_path):
         print(f"Missing input files for {date_str}, skipping")
         return
 
-    night_rows = load_night_csv(csv_path)
+    night_rows = load_night_csv(raw_data_path)
 
-    with open(classified_path, newline="") as f:
+    with open(peaks_path, newline="") as f:
         events = list(csv.DictReader(f))
 
     output_rows = []

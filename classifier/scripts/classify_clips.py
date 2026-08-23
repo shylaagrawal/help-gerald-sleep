@@ -83,10 +83,10 @@ def classify_clip(model, class_names, wav_path):
 
 def process_night(night_dir):
     date_str = os.path.basename(night_dir).replace("night_", "")
-    events_path = os.path.join(night_dir, f"events_{date_str}.csv")
+    peaks_path = os.path.join(night_dir, f"peaks_{date_str}.csv")
     clips_dir = os.path.join(night_dir, f"peak_audio_clips_{date_str}")
 
-    if not os.path.exists(events_path):
+    if not os.path.exists(peaks_path):
         print(f"No events file found for {date_str}, skipping")
         return None
 
@@ -94,9 +94,9 @@ def process_night(night_dir):
     model = hub.load("https://tfhub.dev/google/yamnet/1")
     class_names = load_class_names(model)
 
-    out_path = os.path.join(night_dir, f"classified_{date_str}.csv")
+    out_path = peaks_path
 
-    with open(events_path, newline="") as f_in:
+    with open(peaks_path, newline="") as f_in:
         reader = csv.DictReader(f_in)
         rows = list(reader)
         fieldnames = reader.fieldnames + [
