@@ -393,6 +393,20 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   outline-offset:3px;
 }
 
+.privacy-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: inherit;
+  opacity: 0.65;
+  text-decoration: underline;
+  transition: opacity 0.2s ease;
+}
+
+.privacy-link:hover {
+  opacity: 1;
+}
+
 /* ============================================
    Site nav
    ============================================ */
