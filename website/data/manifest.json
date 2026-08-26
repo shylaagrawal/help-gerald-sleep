@@ -1,0 +1,16 @@
+[
+  {
+    "date": "2026-08-22",
+    "events": 27,
+    "peak_isolated_db": 72.7,
+    "violations_45db": 27,
+    "avg_isolated_db": 63.6
+  },
+  {
+    "date": "2026-08-23",
+    "events": 11,
+    "peak_isolated_db": 79.8,
+    "violations_45db": 11,
+    "avg_isolated_db": 70.2
+  }
+]
