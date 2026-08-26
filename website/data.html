@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Data — Help Gerald Sleep</title>
-<meta name="description" content="Traffic, noise, and safety data behind the Help Gerald Sleep road-noise campaign in Bothell, WA.">
+<meta name="description" content="Real overnight road-noise measurements from Gerald's mic — a night-by-night look at detected vehicle events, isolated dB(A) levels, and the audio behind them.">
 
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,12 +33,101 @@
   </div>
 </header>
 
-<!-- ============ PLACEHOLDER PAGE ============ -->
-<section class="placeholder-page">
-  <p class="eyebrow eyebrow-dark">Data</p>
-  <h1>More data coming soon</h1>
-  <p class="placeholder-copy">This page is still being built out. In the meantime, the key stats behind this campaign are on the <a href="index.html#research">home page</a>, or you can read the full research paper below.</p>
-  <a class="paper-link" href="https://docs.google.com/document/d/15aomqM8IHhXJBvnAWnDzRJ5AM9dYTJvhZWyUxfcYuEE/edit?tab=t.hzkjctti4e85" target="_blank" rel="noopener">Read the full paper &amp; data sources →</a>
+<!-- ============ PAGE INTRO ============ -->
+<section class="data-intro">
+  <p class="eyebrow eyebrow-dark">Straight from Gerald's mic</p>
+  <h1>What Gerald actually recorded</h1>
+  <p>Every night, Gerald logs sound levels outside my window, picks out the loud events, and estimates how much of that noise came from the vehicle itself — separate from the county-wide extrapolations on the <a href="index.html#research">home page</a>. Pick a night below to see it.</p>
+</section>
+
+<!-- ============ MAIN DATA AREA ============ -->
+<section class="data-main">
+  <div class="data-shell">
+
+    <div class="night-picker" id="nightPicker">
+      <!-- populated by data.js -->
+    </div>
+
+    <div id="dataContent">
+      <!-- Gerald status -->
+      <div class="gerald-status" id="geraldStatus">
+        <img src="assets/hero-graphic.png" alt="" class="gerald-status-img" id="geraldStatusImg">
+        <div class="gerald-status-text">
+          <span class="gerald-badge" id="geraldBadge">Loading…</span>
+          <p class="gerald-status-title" id="geraldTitle">Loading Gerald's night…</p>
+          <p class="gerald-status-desc" id="geraldDesc">Fetching last night's numbers.</p>
+        </div>
+      </div>
+
+      <!-- Summary tiles -->
+      <div class="stat-grid data-stat-grid" id="statGrid">
+        <div class="stat-card">
+          <p class="stat-number" id="statEvents">—</p>
+          <p class="stat-label">vehicle events detected</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number" id="statPeak">—</p>
+          <p class="stat-label">peak isolated dB(A)</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number" id="statViolations">—</p>
+          <p class="stat-label">events over the WHO 45 dB(A) limit</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number" id="statAvg">—</p>
+          <p class="stat-label">average isolated dB(A)</p>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>Overnight sound level</h3>
+          <p>Background trace is Gerald's raw dB(A) reading; dots are isolated vehicle events. Click a dot — or a chip below — to hear the clip.</p>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="acousticChart"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-swatch" style="background:var(--asphalt-600);"></span>Raw sound level</span>
+          <span><span class="legend-swatch" style="background:var(--signal-red);"></span>WHO night guideline (45 dB(A))</span>
+          <span><span class="legend-swatch" style="background:var(--amber-500);border-radius:50%;width:8px;height:8px;"></span>Detected vehicle event</span>
+        </div>
+        <div class="event-chips" id="eventChips">
+          <!-- populated by data.js -->
+        </div>
+      </div>
+
+      <!-- Event detail -->
+      <div class="event-detail" id="eventDetail">
+        <p class="event-detail-empty" id="eventDetailEmpty">Click any point on the chart, or a chip above, to see the details for that event.</p>
+        <div id="eventDetailBody" style="display:none;">
+          <div class="event-detail-grid">
+            <div class="event-detail-field">
+              <p class="event-detail-label">Time</p>
+              <p class="event-detail-value" id="detailTime">—</p>
+            </div>
+            <div class="event-detail-field">
+              <p class="event-detail-label">Isolated level</p>
+              <p class="event-detail-value" id="detailDb">—</p>
+            </div>
+            <div class="event-detail-field">
+              <p class="event-detail-label">Classifier confidence</p>
+              <p class="event-detail-value" id="detailConfidence">—</p>
+            </div>
+          </div>
+          <button class="play-btn" id="playBtn">▶ Play clip</button>
+          <p class="event-note" id="detailNote"></p>
+        </div>
+        <audio id="eventAudio" preload="none"></audio>
+      </div>
+
+      <p class="data-methodology">Sound levels are calibrated against a phone SPL meter (R² = 0.97), not lab equipment — treat the loudest events (75+ dB(A)) as approximate until Gerald is recalibrated with more loud-end reference points. Isolated dB(A) subtracts the ambient background from each event to estimate the vehicle's own contribution. <a href="https://docs.google.com/document/d/15aomqM8IHhXJBvnAWnDzRJ5AM9dYTJvhZWyUxfcYuEE/edit?tab=t.hzkjctti4e85" target="_blank" rel="noopener">Read the full methodology →</a></p>
+    </div>
+
+    <p class="event-detail-empty" id="noDataMessage" style="display:none;text-align:center;padding:3rem 0;">Gerald hasn't uploaded any processed nights yet — check back soon.</p>
+
+  </div>
 </section>
 
 <footer class="site-footer">
@@ -47,5 +136,6 @@
 </footer>
 
 <script src="script.js"></script>
+<script src="data.js"></script>
 </body>
 </html>
