@@ -1,0 +1,1 @@
+event_id,start,end,loud_duration_seconds,peak_time,peak_db,baseline_db,clip_window_start,clip_window_end,clip_duration_seconds,clip_file,top_class,top_class_confidence,vehicle_confidence,vehicle_matched_class,is_vehicle
