@@ -1076,4 +1076,3 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 @media(max-width:560px){
   .gerald-status{flex-direction:column;text-align:center;}
   .chart-wrap{height:260px;}
-}
