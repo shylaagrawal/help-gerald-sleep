@@ -1,15 +1,20 @@
 // ============================================
-// Help Gerald Sleep — data page (redesigned)
-// The event list IS the interface. Every car has its own visible
-// play button. The chart is decorative context only, not clickable.
+// Help Gerald Sleep — data page
+// Dropdown night selector (scales to any number of nights).
+// The chart itself is the interface: click a dot to hear that car.
+// All numbers below come from the real raw/peaks/final CSVs -- nothing
+// on this page is fabricated or simulated.
 // ============================================
 
 const WHO_THRESHOLD_DB = 45;
-const MAX_CHART_POINTS = 400;
+const MAX_CHART_POINTS = 900;
 
+let manifestData = [];
+let currentIndex = 0;
 let currentNight = null;
-let currentlyPlayingId = null;
-const audioPlayers = {}; // eventId -> <audio> element
+let selectedEventId = null;
+let chartLayout = null;
+let hoveredMarkerId = null;
 
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
@@ -41,50 +46,60 @@ function fmtTime(date) {
 
 function fmtDateLabel(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+  return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 // ---------- loading ----------
 
 async function init() {
-  let manifest;
   try {
-    manifest = await fetchJSON('data/manifest.json');
+    manifestData = await fetchJSON('data/manifest.json');
   } catch (err) {
-    manifest = [];
+    manifestData = [];
   }
 
-  if (!manifest.length) {
+  if (!manifestData.length) {
     document.getElementById('dataContent').style.display = 'none';
+    document.querySelector('.night-selector').style.display = 'none';
     document.getElementById('noDataMessage').style.display = 'block';
     return;
   }
 
-  manifest.sort((a, b) => b.date.localeCompare(a.date));
-  renderNightPicker(manifest);
-  await loadNight(manifest[0].date);
-}
+  manifestData.sort((a, b) => b.date.localeCompare(a.date)); // most recent first
+  renderNightDropdown();
+  currentIndex = 0;
+  await loadNight(manifestData[0].date);
 
-function renderNightPicker(manifest) {
-  const picker = document.getElementById('nightPicker');
-  picker.innerHTML = '';
-  manifest.forEach((night, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'night-pill' + (i === 0 ? ' active' : '');
-    btn.textContent = fmtDateLabel(night.date);
-    btn.dataset.date = night.date;
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.night-pill').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      loadNight(night.date);
-    });
-    picker.appendChild(btn);
+  document.getElementById('prevNight').addEventListener('click', () => stepNight(1));  // older
+  document.getElementById('nextNight').addEventListener('click', () => stepNight(-1)); // newer
+  document.getElementById('nightSelect').addEventListener('change', (e) => {
+    currentIndex = manifestData.findIndex(n => n.date === e.target.value);
+    loadNight(e.target.value);
   });
 }
 
-async function loadNight(date) {
-  stopAllAudio();
+function renderNightDropdown() {
+  const select = document.getElementById('nightSelect');
+  select.innerHTML = '';
+  manifestData.forEach(night => {
+    const opt = document.createElement('option');
+    opt.value = night.date;
+    opt.textContent = fmtDateLabel(night.date);
+    select.appendChild(opt);
+  });
+}
 
+function stepNight(direction) {
+  const newIndex = currentIndex + direction;
+  if (newIndex < 0 || newIndex >= manifestData.length) return;
+  currentIndex = newIndex;
+  const date = manifestData[currentIndex].date;
+  document.getElementById('nightSelect').value = date;
+  loadNight(date);
+}
+
+async function loadNight(date) {
+  selectedEventId = null;
   const [peaks, final, raw] = await Promise.all([
     fetchCSV(`data/${date}/peaks.csv`),
     fetchCSV(`data/${date}/final.csv`),
@@ -120,144 +135,130 @@ async function loadNight(date) {
   currentNight = { date, raw: rawPoints, events };
 
   renderGeraldStatus(currentNight);
-  renderEventList(currentNight);
-  drawMiniChart();
+  renderStatTiles(currentNight);
+  clearEventDetail();
+  drawChart();
 }
 
-// ---------- Gerald status (the "at a glance" summary) ----------
+// ---------- Gerald status ----------
 
 function renderGeraldStatus(night) {
   const badge = document.getElementById('geraldBadge');
   const title = document.getElementById('geraldTitle');
   const desc = document.getElementById('geraldDesc');
-  const card = document.getElementById('geraldStatus');
 
   const peak = night.events.length ? Math.max(...night.events.map(e => e.isolatedDb)) : null;
   const violations = night.events.filter(e => e.exceedsWho).length;
 
-  card.classList.remove('mood-calm', 'mood-restless', 'mood-violation');
-
-  document.getElementById('statEvents').textContent = night.events.length;
-  document.getElementById('statPeak').textContent = peak !== null ? peak.toFixed(1) : '—';
-
   if (peak === null) {
     badge.textContent = 'No events';
-    card.classList.add('mood-calm');
+    badge.className = 'gerald-badge ok';
     title.textContent = 'A quiet night';
     desc.textContent = "Gerald didn't detect any vehicle events crossing the peak-detection threshold this night.";
-  } else if (peak > 60) {
-    card.classList.add('mood-violation');
-    badge.textContent = 'WHO limit exceeded';
-    title.textContent = 'Gerald was startled awake';
-    desc.textContent = `${violations} of ${night.events.length} events crossed the WHO 45 dB(A) guideline.`;
-  } else if (peak > 45) {
-    card.classList.add('mood-restless');
-    badge.textContent = 'Elevated';
-    title.textContent = 'Gerald was restless';
-    desc.textContent = `Some events crossed the WHO 45 dB(A) guideline, though nothing severe.`;
-  } else {
-    card.classList.add('mood-calm');
-    badge.textContent = 'Within WHO guideline';
-    title.textContent = 'Gerald mostly slept fine';
-    desc.textContent = `All ${night.events.length} detected events stayed under the WHO 45 dB(A) guideline.`;
-  }
-}
-
-// ---------- the event list: the actual interface ----------
-
-function stopAllAudio() {
-  Object.values(audioPlayers).forEach(a => { a.pause(); a.currentTime = 0; });
-  currentlyPlayingId = null;
-  document.querySelectorAll('.event-play-btn').forEach(btn => {
-    btn.textContent = '▶ Play';
-    btn.classList.remove('playing');
-  });
-}
-
-function renderEventList(night) {
-  const list = document.getElementById('eventList');
-  const emptyMsg = document.getElementById('eventListEmpty');
-  const countLabel = document.getElementById('eventListCount');
-  list.innerHTML = '';
-
-  if (!night.events.length) {
-    emptyMsg.style.display = 'block';
-    countLabel.textContent = '0 cars detected';
     return;
   }
-  emptyMsg.style.display = 'none';
-  countLabel.textContent = `${night.events.length} car${night.events.length === 1 ? '' : 's'} detected, loudest first`;
 
-  const sorted = [...night.events].sort((a, b) => b.isolatedDb - a.isolatedDb);
-
-  sorted.forEach(event => {
-    const card = document.createElement('div');
-    card.className = 'event-card' + (event.exceedsWho ? ' event-card-violation' : '');
-
-    const audio = document.createElement('audio');
-    audio.preload = 'none';
-    audio.src = `data/${night.date}/audio/${event.id}.mp3`;
-    audioPlayers[event.id] = audio;
-
-    card.innerHTML = `
-      <button class="event-play-btn" aria-label="Play this car's audio">▶ Play</button>
-      <div class="event-card-info">
-        <div class="event-card-top">
-          <span class="event-card-time">${fmtTime(event.time)}</span>
-          <span class="event-card-db ${event.exceedsWho ? 'over' : ''}">${event.isolatedDb.toFixed(1)} dB(A)</span>
-          ${event.exceedsWho ? '<span class="event-card-flag">Over WHO limit</span>' : ''}
-        </div>
-        <button class="event-card-more" type="button">Details ▾</button>
-        <div class="event-card-detail">
-          <p><strong>Classifier confidence:</strong> ${(event.confidence * 100).toFixed(1)}%</p>
-          <p><strong>Closest sound match:</strong> ${event.topClass || 'unknown'}</p>
-          <p><strong>Clip length:</strong> ${event.clipDuration ? event.clipDuration.toFixed(0) : '?'} seconds</p>
-        </div>
-      </div>
-    `;
-
-    const playBtn = card.querySelector('.event-play-btn');
-    playBtn.addEventListener('click', () => togglePlay(event.id, playBtn));
-
-    const moreBtn = card.querySelector('.event-card-more');
-    const detailPanel = card.querySelector('.event-card-detail');
-    moreBtn.addEventListener('click', () => {
-      const open = detailPanel.classList.toggle('open');
-      moreBtn.textContent = open ? 'Details ▴' : 'Details ▾';
-    });
-
-    audio.addEventListener('ended', () => {
-      playBtn.textContent = '▶ Play';
-      playBtn.classList.remove('playing');
-      currentlyPlayingId = null;
-    });
-
-    list.appendChild(card);
-  });
-}
-
-function togglePlay(eventId, btn) {
-  const audio = audioPlayers[eventId];
-  if (!audio) return;
-
-  if (currentlyPlayingId && currentlyPlayingId !== eventId) {
-    stopAllAudio();
-  }
-
-  if (audio.paused) {
-    audio.play();
-    btn.textContent = '⏸ Pause';
-    btn.classList.add('playing');
-    currentlyPlayingId = eventId;
+  if (peak > 60) {
+    badge.textContent = 'WHO limit exceeded';
+    badge.className = 'gerald-badge violation';
+    title.textContent = 'Gerald was startled awake';
+    desc.textContent = `${violations} of ${night.events.length} detected events crossed the WHO 45 dB(A) nighttime guideline. Loudest isolated level: ${peak.toFixed(1)} dB(A).`;
+  } else if (peak > WHO_THRESHOLD_DB) {
+    badge.textContent = 'Elevated';
+    badge.className = 'gerald-badge warn';
+    title.textContent = 'Gerald was restless';
+    desc.textContent = `${violations} of ${night.events.length} events crossed the WHO 45 dB(A) guideline, though nothing severe.`;
   } else {
-    audio.pause();
-    btn.textContent = '▶ Play';
-    btn.classList.remove('playing');
-    currentlyPlayingId = null;
+    badge.textContent = 'Within WHO guideline';
+    badge.className = 'gerald-badge ok';
+    title.textContent = 'Gerald mostly slept fine';
+    desc.textContent = `All ${night.events.length} detected events stayed under the WHO 45 dB(A) nighttime guideline.`;
   }
 }
 
-// ---------- mini chart: decorative context, NOT interactive ----------
+// ---------- stat tiles: all computed from real fetched data ----------
+
+function renderStatTiles(night) {
+  const events = night.events;
+  const raw = night.raw;
+
+  document.getElementById('statEvents').textContent = events.length;
+
+  if (events.length) {
+    const isolatedVals = events.map(e => e.isolatedDb);
+    document.getElementById('statLoudestCar').textContent = Math.max(...isolatedVals).toFixed(1);
+    document.getElementById('statQuietestCar').textContent = Math.min(...isolatedVals).toFixed(1);
+    document.getElementById('statAvgCar').textContent = (isolatedVals.reduce((a, b) => a + b, 0) / isolatedVals.length).toFixed(1);
+    document.getElementById('statViolations').textContent = events.filter(e => e.exceedsWho).length;
+  } else {
+    document.getElementById('statLoudestCar').textContent = '—';
+    document.getElementById('statQuietestCar').textContent = '—';
+    document.getElementById('statAvgCar').textContent = '—';
+    document.getElementById('statViolations').textContent = '0';
+  }
+
+  if (raw.length) {
+    const rawVals = raw.map(r => r.db);
+    document.getElementById('statNightAvg').textContent = (rawVals.reduce((a, b) => a + b, 0) / rawVals.length).toFixed(1);
+    document.getElementById('statNightLoudest').textContent = Math.max(...rawVals).toFixed(1);
+    document.getElementById('statNightQuietest').textContent = Math.min(...rawVals).toFixed(1);
+  } else {
+    document.getElementById('statNightAvg').textContent = '—';
+    document.getElementById('statNightLoudest').textContent = '—';
+    document.getElementById('statNightQuietest').textContent = '—';
+  }
+}
+
+// ---------- event detail + audio ----------
+
+function clearEventDetail() {
+  selectedEventId = null;
+  document.getElementById('eventDetailEmpty').style.display = 'block';
+  document.getElementById('eventDetailBody').style.display = 'none';
+}
+
+function selectEvent(eventId) {
+  if (!currentNight) return;
+  const event = currentNight.events.find(e => e.id === eventId);
+  if (!event) return;
+
+  selectedEventId = eventId;
+
+  document.getElementById('eventDetailEmpty').style.display = 'none';
+  document.getElementById('eventDetailBody').style.display = 'block';
+  document.getElementById('detailTime').textContent = fmtTime(event.time);
+  document.getElementById('detailDb').textContent = `${event.isolatedDb.toFixed(1)} dB(A)`;
+  document.getElementById('detailConfidence').textContent = `${(event.confidence * 100).toFixed(1)}%`;
+
+  const note = document.getElementById('detailNote');
+  note.textContent = event.note && event.note !== 'ok'
+    ? `Note: ${event.note}`
+    : `Classifier's closest match: ${event.topClass || 'unknown'}. Clip is ${event.clipDuration ? event.clipDuration.toFixed(0) : '?'}s long.`;
+
+  const audio = document.getElementById('eventAudio');
+  audio.src = `data/${currentNight.date}/audio/${eventId}.mp3`;
+  audio.currentTime = 0;
+  audio.pause();
+
+  const playBtn = document.getElementById('playBtn');
+  playBtn.textContent = '▶ Play clip';
+  playBtn.onclick = () => {
+    if (audio.paused) {
+      audio.play();
+      playBtn.textContent = '⏸ Pause';
+    } else {
+      audio.pause();
+      playBtn.textContent = '▶ Play clip';
+    }
+  };
+  audio.onended = () => { playBtn.textContent = '▶ Play clip'; };
+
+  drawChart();
+
+  document.getElementById('eventDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ---------- chart: the real interface ----------
 
 function downsample(points, maxPoints) {
   if (points.length <= maxPoints) return points;
@@ -267,9 +268,9 @@ function downsample(points, maxPoints) {
   return out;
 }
 
-function drawMiniChart() {
+function drawChart() {
   if (!currentNight) return;
-  const canvas = document.getElementById('miniChart');
+  const canvas = document.getElementById('acousticChart');
   const wrap = canvas.parentElement;
   const dpr = window.devicePixelRatio || 1;
   const width = wrap.clientWidth;
@@ -282,52 +283,152 @@ function drawMiniChart() {
   ctx.clearRect(0, 0, width, height);
 
   const raw = downsample(currentNight.raw, MAX_CHART_POINTS);
-  if (!raw.length) {
-    ctx.fillStyle = 'rgba(61,68,84,0.5)';
-    ctx.font = '12px Inter, sans-serif';
-    ctx.fillText('No overnight trace for this night yet.', 12, height / 2);
+  const events = currentNight.events;
+
+  if (!raw.length && !events.length) {
+    ctx.fillStyle = 'rgba(251,247,237,0.4)';
+    ctx.font = '13px Inter, sans-serif';
+    ctx.fillText('No data for this night yet.', 16, height / 2);
+    chartLayout = null;
     return;
   }
 
-  const minTime = raw[0].time, maxTime = raw[raw.length - 1].time;
-  const dbVals = raw.map(r => r.db);
-  const minDb = Math.min(30, ...dbVals) - 3;
-  const maxDb = Math.max(70, ...dbVals) + 3;
+  const allTimes = raw.map(r => r.time).concat(events.map(e => e.time));
+  const minTime = new Date(Math.min(...allTimes));
+  const maxTime = new Date(Math.max(...allTimes));
 
-  const padLeft = 8, padRight = 8, padTop = 8, padBottom = 8;
+  const allDb = raw.map(r => r.db).concat(events.map(e => e.isolatedDb));
+  const minDb = Math.min(30, ...allDb) - 5;
+  const maxDb = Math.max(70, ...allDb) + 5;
+
+  const padLeft = 40, padRight = 14, padTop = 14, padBottom = 28;
   const plotW = width - padLeft - padRight;
   const plotH = height - padTop - padBottom;
 
   const xScale = (t) => padLeft + ((t - minTime) / (maxTime - minTime || 1)) * plotW;
   const yScale = (db) => padTop + (1 - (db - minDb) / (maxDb - minDb || 1)) * plotH;
 
-  // WHO line, very subtle -- context only
-  const whoY = yScale(WHO_THRESHOLD_DB);
-  ctx.strokeStyle = 'rgba(193,80,46,0.35)';
-  ctx.setLineDash([4, 4]);
+  // gridlines every 10 dB, light lines on dark bg
+  ctx.strokeStyle = 'rgba(251,247,237,0.08)';
+  ctx.fillStyle = 'rgba(251,247,237,0.45)';
+  ctx.font = '10px "IBM Plex Mono", monospace';
   ctx.lineWidth = 1;
+  for (let db = Math.ceil(minDb / 10) * 10; db <= maxDb; db += 10) {
+    const y = yScale(db);
+    ctx.beginPath();
+    ctx.moveTo(padLeft, y);
+    ctx.lineTo(width - padRight, y);
+    ctx.stroke();
+    ctx.fillText(`${db}`, 4, y + 3);
+  }
+
+  // time ticks
+  const tickCount = 6;
+  for (let i = 0; i <= tickCount; i++) {
+    const t = new Date(minTime.getTime() + (i / tickCount) * (maxTime - minTime));
+    const x = xScale(t);
+    ctx.fillText(fmtTime(t), Math.min(Math.max(x - 18, padLeft), width - padRight - 36), height - 8);
+  }
+
+  // WHO threshold line
+  const whoY = yScale(WHO_THRESHOLD_DB);
+  ctx.strokeStyle = '#F0A98C';
+  ctx.setLineDash([5, 5]);
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(padLeft, whoY);
   ctx.lineTo(width - padRight, whoY);
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // trace
-  ctx.strokeStyle = 'rgba(61,68,84,0.55)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  raw.forEach((pt, i) => {
-    const x = xScale(pt.time), y = yScale(pt.db);
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  // raw trace -- real per-second data, drawn prominently
+  if (raw.length > 1) {
+    ctx.strokeStyle = 'rgba(251,247,237,0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    raw.forEach((pt, i) => {
+      const x = xScale(pt.time), y = yScale(pt.db);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  // event markers -- bigger, glowing, obviously clickable
+  const amber = '#fd7500';
+  const red = '#C1502E';
+  const markerPositions = [];
+
+  events.forEach(e => {
+    const x = xScale(e.time), y = yScale(e.isolatedDb);
+    const isSelected = e.id === selectedEventId;
+    const isHovered = e.id === hoveredMarkerId;
+    const color = e.exceedsWho ? red : amber;
+    const radius = isSelected ? 9 : (isHovered ? 8 : 6);
+
+    if (isSelected || isHovered) {
+      ctx.beginPath();
+      ctx.arc(x, y, radius + 6, 0, Math.PI * 2);
+      ctx.fillStyle = color + '33';
+      ctx.fill();
+    }
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(251,247,237,0.9)';
+    ctx.stroke();
+
+    markerPositions.push({ id: e.id, x, y });
   });
-  ctx.stroke();
+
+  chartLayout = { markerPositions };
+}
+
+function findClosestMarker(evt) {
+  if (!chartLayout) return null;
+  const canvas = evt.currentTarget;
+  const rect = canvas.getBoundingClientRect();
+  const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+  const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+
+  let closest = null, closestDist = Infinity;
+  chartLayout.markerPositions.forEach(m => {
+    const dist = Math.hypot(m.x - x, m.y - y);
+    if (dist < closestDist) { closestDist = dist; closest = m; }
+  });
+  return closest && closestDist <= 18 ? closest : null;
+}
+
+function handleChartClick(evt) {
+  const closest = findClosestMarker(evt);
+  if (closest) selectEvent(closest.id);
+}
+
+function handleChartMove(evt) {
+  const closest = findClosestMarker(evt);
+  const canvas = evt.currentTarget;
+  canvas.style.cursor = closest ? 'pointer' : 'default';
+  const newHoverId = closest ? closest.id : null;
+  if (newHoverId !== hoveredMarkerId) {
+    hoveredMarkerId = newHoverId;
+    drawChart();
+  }
 }
 
 // ---------- wiring ----------
 
 window.addEventListener('resize', () => {
   clearTimeout(window._chartResizeTimer);
-  window._chartResizeTimer = setTimeout(drawMiniChart, 120);
+  window._chartResizeTimer = setTimeout(drawChart, 120);
 });
+
+const chartCanvas = document.getElementById('acousticChart');
+chartCanvas.addEventListener('click', handleChartClick);
+chartCanvas.addEventListener('mousemove', handleChartMove);
+chartCanvas.addEventListener('mouseleave', () => { hoveredMarkerId = null; drawChart(); });
 
 init();
