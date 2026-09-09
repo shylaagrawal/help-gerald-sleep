@@ -1,0 +1,15 @@
+event_id,centroid_timestamp,isolated_db_a,isolation_note,used_raw_peak_fallback,vehicle_confidence,top_class,exceeds_who_45db_threshold,raw_peak_db,raw_baseline_db
+1,2026-09-08T01:14:57.557,61.91,ok,False,0.0593,Silence,True,63.1,45.84
+2,2026-09-08T01:33:15.458,60.03,ok,False,0.0384,Silence,True,60.79,45.21
+4,2026-09-08T03:17:08.040,60.04,ok,False,0.048,Silence,True,60.66,45.0
+5,2026-09-08T03:36:14.393,62.2,ok,False,0.046,Silence,True,63.7,45.22
+6,2026-09-08T03:46:02.995,60.49,ok,False,0.0455,Silence,True,61.61,45.63
+7,2026-09-08T04:10:14.469,62.75,ok,False,0.0654,Silence,True,63.89,46.26
+8,2026-09-08T04:23:42.407,65.08,ok,False,0.0634,Silence,True,66.62,47.16
+9,2026-09-08T05:24:01.221,74.13,ok,False,0.1595,Silence,True,78.53,52.68
+10,2026-09-08T05:37:32.184,70.23,ok,False,0.1894,Vehicle,True,72.89,52.65
+11,2026-09-08T05:50:47.638,68.73,ok,False,0.2519,Vehicle,True,71.54,49.55
+12,2026-09-08T06:02:03.913,64.09,ok,False,0.0453,Silence,True,65.27,47.98
+13,2026-09-08T06:20:49.163,64.24,ok,False,0.2021,Vehicle,True,70.9,53.61
+14,2026-09-08T06:21:03.854,74.77,ok,False,0.1426,Silence,True,78.01,54.35
+15,2026-09-08T06:23:54.488,71.79,ok,False,0.0898,"Inside, small room",True,74.15,53.42
