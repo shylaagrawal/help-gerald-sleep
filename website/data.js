@@ -1,13 +1,15 @@
 // ============================================
-// Help Gerald Sleep — data page
-// Dropdown night selector. Chart is the interface: click a dot to hear
-// that car, and watch a synced mini dB-vs-time chart with a moving
-// playhead while the clip plays. All numbers come from real CSVs.
+// Help Gerald Sleep — data page (complete rebuild)
+// Dropdown night selector. The overnight chart is the interface: click
+// a dot to hear that car, and watch a synced mini dB-vs-time chart with
+// a moving playhead while the (now fixed-length, ~15s) clip plays.
+// Every number on this page comes from real CSVs -- nothing simulated.
 // ============================================
 
 const WHO_THRESHOLD_DB = 45;
 const MAX_CHART_POINTS = 900;
 const MIN_VALID_RAW_ROWS = 60; // fewer than a minute of real readings = treat as no data
+const EVENT_CLIP_SECONDS = 15; // matches the fixed clip length prepare_web_assets.py now exports
 
 let manifestData = [];
 let currentIndex = 0;
@@ -16,7 +18,6 @@ let selectedEventId = null;
 let chartLayout = null;
 let hoveredMarkerId = null;
 let playheadRAF = null;
-let miniChartLayout = null; // { minTime, maxTime, minDb, maxDb, padLeft, padRight, plotW, height }
 
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
@@ -125,7 +126,6 @@ async function loadNight(date) {
         confidence: parseFloat(f.vehicle_confidence),
         topClass: f.top_class,
         note: f.isolation_note,
-        clipDuration: parseFloat(p.clip_duration_seconds),
       };
     })
     .filter(Boolean)
@@ -138,11 +138,7 @@ async function loadNight(date) {
 
   currentNight = { date, raw: rawPoints, events };
 
-  // A night with almost no real per-second readings has nothing trustworthy
-  // to show -- flag it clearly instead of computing misleading stats from
-  // near-empty data (e.g. a single placeholder row).
   const isValid = rawPoints.length >= MIN_VALID_RAW_ROWS;
-
   document.getElementById('invalidNightNotice').style.display = isValid ? 'none' : 'block';
   document.getElementById('validNightContent').style.display = isValid ? 'block' : 'none';
 
@@ -293,15 +289,11 @@ function selectEvent(eventId) {
   document.getElementById('eventDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// Uses the real per-second night data, sliced to roughly this clip's
-// window, so the mini chart reflects Gerald's actual readings -- not a
-// separate synthetic dataset.
+// Slices the real per-second night data to roughly match the clip's
+// actual ~15s window (clips are now a fixed length centered on the car,
+// see prepare_web_assets.py) -- the mini chart reflects real readings.
 function getEventWindowRawSlice(event) {
-  // The clip is centered on the event's centroid time. We don't know the
-  // exact clip start/end here (that lives in the audio file itself), so we
-  // slice a generous window around the centroid and let the playhead
-  // mapping use the real audio.duration once it loads.
-  const halfWindowMs = 20 * 1000; // generous; real clip is ~15s centered on the car
+  const halfWindowMs = (EVENT_CLIP_SECONDS / 2 + 1) * 1000; // small buffer for edge-shifted clips
   const start = new Date(event.time.getTime() - halfWindowMs);
   const end = new Date(event.time.getTime() + halfWindowMs);
   return currentNight.raw.filter(r => r.time >= start && r.time <= end);
@@ -325,7 +317,6 @@ function drawEventMiniChart(event, playheadFraction) {
     ctx.fillStyle = 'rgba(251,247,237,0.4)';
     ctx.font = '11px Inter, sans-serif';
     ctx.fillText('No fine-grained trace available for this moment.', 10, height / 2);
-    miniChartLayout = null;
     return;
   }
 
@@ -341,9 +332,6 @@ function drawEventMiniChart(event, playheadFraction) {
   const xScale = (t) => padLeft + ((t - minTime) / (maxTime - minTime || 1)) * plotW;
   const yScale = (db) => padTop + (1 - (db - minDb) / (maxDb - minDb || 1)) * plotH;
 
-  miniChartLayout = { minTime, maxTime, padLeft, plotW };
-
-  // WHO line
   const whoY = yScale(WHO_THRESHOLD_DB);
   ctx.strokeStyle = 'rgba(240,169,140,0.5)';
   ctx.setLineDash([4, 4]);
@@ -354,7 +342,6 @@ function drawEventMiniChart(event, playheadFraction) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // trace
   ctx.strokeStyle = '#fd7500';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -364,7 +351,6 @@ function drawEventMiniChart(event, playheadFraction) {
   });
   ctx.stroke();
 
-  // moving playhead line, synced to audio.currentTime via playheadFraction (0-1)
   if (playheadFraction !== null && playheadFraction !== undefined) {
     const x = padLeft + playheadFraction * plotW;
     ctx.strokeStyle = 'rgba(251,247,237,0.9)';
