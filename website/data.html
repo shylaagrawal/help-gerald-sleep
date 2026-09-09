@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Data — Help Gerald Sleep</title>
-<meta name="description" content="Real overnight road-noise measurements from Gerald's mic — browse and listen to every detected vehicle event.">
+<meta name="description" content="Real overnight road-noise measurements from Gerald's mic — click any detected car on the chart to hear it.">
 
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,25 +33,27 @@
   </div>
 </header>
 
-<!-- ============ PAGE INTRO ============ -->
-<section class="data-intro">
-  <p class="eyebrow eyebrow-dark">Straight from Gerald's mic</p>
-  <h1>Listen to what Gerald heard</h1>
-  <p>Every night, Gerald records outside my window, picks out the loud moments, and estimates how much of that noise came from the vehicle itself. Pick a night, then press play on any car below to hear it.</p>
-  <p class="freshness-note"><span class="freshness-dot"></span>Updated automatically every morning after Gerald's overnight recording</p>
-</section>
-
-<!-- ============ MAIN DATA AREA ============ -->
-<section class="data-main">
+<!-- ============ DATA PAGE (dark) ============ -->
+<section class="data-page">
   <div class="data-shell">
 
-    <div class="night-picker" id="nightPicker">
-      <!-- populated by data.js -->
+    <div class="data-intro">
+      <p class="eyebrow">Straight from Gerald's mic</p>
+      <h1>What Gerald actually heard</h1>
+      <p>Every night, Gerald logs sound levels outside my window, picks out the loud events, and estimates how much of that noise came from the vehicle itself. Click any dot on the chart to hear it.</p>
+      <p class="freshness-note"><span class="freshness-dot"></span>Updated automatically every morning after Gerald's overnight recording</p>
+    </div>
+
+    <!-- Night selector: dropdown, scales to any number of nights -->
+    <div class="night-selector">
+      <button class="night-arrow" id="prevNight" aria-label="Previous night">‹</button>
+      <select id="nightSelect" class="night-select"></select>
+      <button class="night-arrow" id="nextNight" aria-label="Next night">›</button>
     </div>
 
     <div id="dataContent">
 
-      <!-- Gerald status: the "at a glance" summary -->
+      <!-- Gerald status -->
       <div class="gerald-status" id="geraldStatus">
         <img src="assets/hero-graphic.png" alt="" class="gerald-status-img" id="geraldStatusImg">
         <div class="gerald-status-text">
@@ -59,35 +61,84 @@
           <p class="gerald-status-title" id="geraldTitle">Loading Gerald's night…</p>
           <p class="gerald-status-desc" id="geraldDesc">Fetching last night's numbers.</p>
         </div>
-        <div class="gerald-status-numbers">
-          <div>
-            <span class="gerald-num" id="statEvents">—</span>
-            <span class="gerald-num-label">cars heard</span>
-          </div>
-          <div>
-            <span class="gerald-num" id="statPeak">—</span>
-            <span class="gerald-num-label">loudest, dB(A)</span>
-          </div>
+      </div>
+
+      <!-- Full stat grid -->
+      <div class="stat-grid data-stat-grid">
+        <div class="stat-card">
+          <p class="stat-number" id="statEvents">—</p>
+          <p class="stat-label">cars detected</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number" id="statLoudestCar">—</p>
+          <p class="stat-label">loudest isolated car, dB(A)</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number" id="statQuietestCar">—</p>
+          <p class="stat-label">quietest isolated car, dB(A)</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number" id="statAvgCar">—</p>
+          <p class="stat-label">average isolated car, dB(A)</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number" id="statViolations">—</p>
+          <p class="stat-label">events over WHO 45 dB(A)</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number" id="statNightAvg">—</p>
+          <p class="stat-label">average night level, dB(A)</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number" id="statNightLoudest">—</p>
+          <p class="stat-label">loudest raw moment, dB(A)</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number" id="statNightQuietest">—</p>
+          <p class="stat-label">quietest raw moment, dB(A)</p>
         </div>
       </div>
 
-      <!-- Small decorative overview -- context only, nothing to click here -->
-      <div class="mini-chart-card">
-        <p class="mini-chart-label">Overnight sound level (background reading — the cars below are the interesting part)</p>
-        <div class="mini-chart-wrap">
-          <canvas id="miniChart"></canvas>
+      <!-- Chart: the real interface -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>Overnight sound level</h3>
+          <p>The gray trace is Gerald's real per-second reading, straight from raw_data. Each dot is a detected car — <strong>click one to hear it</strong>.</p>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="acousticChart"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span><span class="legend-swatch legend-line"></span>Raw sound level (real data)</span>
+          <span><span class="legend-swatch legend-dash"></span>WHO night guideline (45 dB(A))</span>
+          <span><span class="legend-swatch legend-dot" style="background:var(--amber-500);"></span>Car — click to hear</span>
+          <span><span class="legend-swatch legend-dot" style="background:var(--signal-red);"></span>Car over WHO limit</span>
         </div>
       </div>
 
-      <!-- THE MAIN EVENT: a plain list of cars you can press play on -->
-      <div class="event-list-header">
-        <h2>Cars heard this night</h2>
-        <p id="eventListCount">—</p>
+      <!-- Event detail: appears right below the chart, not far away -->
+      <div class="event-detail" id="eventDetail">
+        <p class="event-detail-empty" id="eventDetailEmpty">Click any dot on the chart above to see and hear that car.</p>
+        <div id="eventDetailBody" style="display:none;">
+          <div class="event-detail-grid">
+            <div class="event-detail-field">
+              <p class="event-detail-label">Time</p>
+              <p class="event-detail-value" id="detailTime">—</p>
+            </div>
+            <div class="event-detail-field">
+              <p class="event-detail-label">Isolated level</p>
+              <p class="event-detail-value" id="detailDb">—</p>
+            </div>
+            <div class="event-detail-field">
+              <p class="event-detail-label">Classifier confidence</p>
+              <p class="event-detail-value" id="detailConfidence">—</p>
+            </div>
+          </div>
+          <button class="play-btn" id="playBtn">▶ Play clip</button>
+          <p class="event-note" id="detailNote"></p>
+        </div>
+        <audio id="eventAudio" preload="none"></audio>
       </div>
-      <div class="event-list" id="eventList">
-        <!-- populated by data.js: one .event-card per detected vehicle -->
-      </div>
-      <p class="event-list-empty" id="eventListEmpty" style="display:none;">Gerald didn't detect any cars loud enough to flag this night.</p>
 
       <p class="data-methodology">Sound levels are calibrated against a phone SPL meter (R² = 0.97), not lab equipment — treat the loudest events (75+ dB(A)) as approximate until Gerald is recalibrated with more loud-end reference points. "Isolated" level subtracts the ambient background from each event to estimate the vehicle's own contribution. <a href="https://docs.google.com/document/d/15aomqM8IHhXJBvnAWnDzRJ5AM9dYTJvhZWyUxfcYuEE/edit?tab=t.hzkjctti4e85" target="_blank" rel="noopener">Read the full methodology →</a></p>
 
@@ -121,7 +172,7 @@
 
     </div>
 
-    <p class="event-list-empty" id="noDataMessage" style="display:none;text-align:center;padding:3rem 0;">Gerald hasn't uploaded any processed nights yet — check back soon.</p>
+    <p class="event-detail-empty" id="noDataMessage" style="display:none;text-align:center;padding:3rem 0;">Gerald hasn't uploaded any processed nights yet — check back soon.</p>
 
   </div>
 </section>
