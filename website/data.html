@@ -33,7 +33,7 @@
   </div>
 </header>
 
-<!-- ============ DATA PAGE (dark) ============ -->
+<!-- ============ DATA PAGE ============ -->
 <section class="data-page">
   <div class="data-shell">
 
@@ -44,7 +44,7 @@
       <p class="freshness-note"><span class="freshness-dot"></span>Updated automatically every morning after Gerald's overnight recording</p>
     </div>
 
-    <!-- Night selector -->
+    <!-- Night selector: dropdown + arrows, scales to any number of nights -->
     <div class="night-selector">
       <button class="night-arrow" id="prevNight" aria-label="Previous night">‹</button>
       <select id="nightSelect" class="night-select"></select>
@@ -63,14 +63,13 @@
         </div>
       </div>
 
-      <!-- Invalid-night notice (shown instead of stats/chart when a night has no real data) -->
+      <!-- Shown instead of stats/chart when a night has no usable data -->
       <p class="invalid-night-notice" id="invalidNightNotice" style="display:none;">
         Gerald doesn't have usable recording data for this night — it may have been unplugged, or the upload didn't include a real reading. Try another night above.
       </p>
 
       <div id="validNightContent">
 
-        <!-- Stats, grouped with plain-language headers -->
         <p class="stat-group-label">The cars Gerald heard</p>
         <div class="stat-grid data-stat-grid">
           <div class="stat-card">
@@ -111,7 +110,7 @@
           </div>
         </div>
 
-        <!-- Chart -->
+        <!-- Chart: the real interface -->
         <div class="chart-card">
           <div class="chart-card-header">
             <h3>Overnight sound level</h3>
@@ -128,7 +127,7 @@
           </div>
         </div>
 
-        <!-- Event detail: chart + play button synced together -->
+        <!-- Event detail: appears right below the chart with its own synced mini chart -->
         <div class="event-detail" id="eventDetail">
           <p class="event-detail-empty" id="eventDetailEmpty">Click any dot on the chart above to see and hear that car.</p>
           <div id="eventDetailBody" style="display:none;">
@@ -159,7 +158,7 @@
 
       </div>
 
-      <p class="data-methodology">Sound levels are calibrated against a phone SPL meter (R² = 0.97), not lab equipment — treat the loudest events (75+ dB(A)) as approximate until Gerald is recalibrated with more loud-end reference points. "Isolated" level subtracts the ambient background from each event to estimate the vehicle's own contribution. <a href="https://docs.google.com/document/d/15aomqM8IHhXJBvnAWnDzRJ5AM9dYTJvhZWyUxfcYuEE/edit?tab=t.hzkjctti4e85" target="_blank" rel="noopener">Read the full methodology →</a></p>
+      <p class="data-methodology">Sound levels are calibrated against a phone SPL meter (R² = 0.97), not lab equipment — treat the loudest events (75+ dB(A)) as approximate until Gerald is recalibrated with more loud-end reference points. "Isolated" level subtracts the ambient background from each event to estimate the vehicle's own contribution. Audio clips are a fixed 15 seconds, centered on the moment the car actually passed. <a href="https://docs.google.com/document/d/15aomqM8IHhXJBvnAWnDzRJ5AM9dYTJvhZWyUxfcYuEE/edit?tab=t.hzkjctti4e85" target="_blank" rel="noopener">Read the full methodology →</a></p>
 
       <div class="policy-ask-grid">
         <div class="policy-ask-card">
