@@ -7,9 +7,13 @@ and the raw WAV clips) and produces everything data.html needs to render
 that night, written into website/data/<date>/ so it's actually deployed
 by Cloudflare Pages (classifier/results/ is not).
 
-Audio clips are compressed to MP3 (mono, 64kbps) to keep the repo small
-enough to hold audio indefinitely -- a ~32s clip goes from ~1MB WAV to
-~250KB MP3, good enough to confirm "yep, that's a truck" by ear.
+Audio clips are trimmed to a FIXED 15 seconds, centered on the car's
+actual centroid moment, then compressed to MP3 (mono, 64kbps). The
+source clips from peak_detection.py are intentionally variable-length
+(needed for the background-subtraction math in analyze_events.py), but
+a fixed length is more predictable and less "boring" for a visitor
+listening on the website, and makes it easy to sync a moving playhead
+against the clip on the front end.
 
 Also maintains website/data/manifest.json, a flat list of every night
 that's been processed, so the site knows what nights exist without
@@ -21,21 +25,45 @@ import csv
 import json
 import shutil
 import subprocess
+import datetime
 
 WEBSITE_DATA_DIR = "website/data"
 MANIFEST_PATH = os.path.join(WEBSITE_DATA_DIR, "manifest.json")
+FIXED_CLIP_SECONDS = 15.0
 
 
-def compress_clip(wav_path, mp3_path):
+def trim_and_compress_clip(wav_path, mp3_path, start_seconds, duration_seconds):
     subprocess.run(
         [
             "ffmpeg", "-y", "-loglevel", "error",
+            "-ss", str(max(0, start_seconds)),
             "-i", wav_path,
+            "-t", str(duration_seconds),
             "-codec:a", "libmp3lame", "-b:a", "64k", "-ac", "1",
             mp3_path,
         ],
         check=True,
     )
+
+
+def compute_trim_window(centroid_time, clip_window_start, clip_duration_seconds):
+    """
+    Returns (start_seconds, duration_seconds) into the ORIGINAL variable-
+    length clip that gives a fixed FIXED_CLIP_SECONDS window centered on
+    the car's centroid moment -- shifted inward (not padded with silence)
+    if the car happened too close to either edge of the original clip.
+    """
+    centroid_offset = (centroid_time - clip_window_start).total_seconds()
+
+    if clip_duration_seconds <= FIXED_CLIP_SECONDS:
+        # original clip is already shorter than our target -- just use all of it
+        return 0.0, clip_duration_seconds
+
+    half = FIXED_CLIP_SECONDS / 2
+    start = centroid_offset - half
+    start = max(0.0, min(start, clip_duration_seconds - FIXED_CLIP_SECONDS))
+
+    return start, FIXED_CLIP_SECONDS
 
 
 def read_csv_rows(path):
@@ -93,6 +121,11 @@ def process_night(date_str, night_dir):
         shutil.copy(raw_path, os.path.join(out_dir, "raw.csv"))
 
     peaks_rows = read_csv_rows(peaks_path)
+    final_rows = read_csv_rows(final_path)
+
+    # need each confirmed event's centroid_timestamp to center the trim on
+    final_by_id = {r["event_id"]: r for r in final_rows}
+
     for row in peaks_rows:
         event_id = row["event_id"]
         clip_filename = os.path.basename(row.get("clip_file", ""))
@@ -103,10 +136,22 @@ def process_night(date_str, night_dir):
             print(f"  prepare_web_assets: clip missing for event {event_id}, skipping audio")
             continue
 
-        compress_clip(local_clip_path, mp3_path)
+        final_row = final_by_id.get(event_id)
+        if not final_row:
+            # not a confirmed vehicle (filtered out in analyze_events.py) -- no audio needed
+            continue
 
-    final_rows = read_csv_rows(final_path)
+        centroid_time = datetime.datetime.fromisoformat(final_row["centroid_timestamp"])
+        clip_window_start = datetime.datetime.fromisoformat(row["clip_window_start"])
+        clip_duration = float(row["clip_duration_seconds"])
+
+        start_seconds, duration_seconds = compute_trim_window(
+            centroid_time, clip_window_start, clip_duration
+        )
+
+        trim_and_compress_clip(local_clip_path, mp3_path, start_seconds, duration_seconds)
+
     summary = build_night_summary(date_str, final_rows)
     update_manifest(summary)
 
-    print(f"  prepare_web_assets: wrote {out_dir} ({len(peaks_rows)} clips compressed)")
+    print(f"  prepare_web_assets: wrote {out_dir} ({len(peaks_rows)} clips processed)")
