@@ -1,0 +1,15 @@
+event_id,centroid_timestamp,isolated_db_a,isolation_note,used_raw_peak_fallback,vehicle_confidence,top_class,exceeds_who_45db_threshold,raw_peak_db,raw_baseline_db
+0,2026-10-22T01:57:19.424,69.67,ok,False,0.0275,Silence,True,71.88,49.62
+1,2026-10-22T04:22:32.098,70.19,ok,False,0.0599,White noise,True,71.74,53.12
+2,2026-10-22T04:33:05.399,76.46,ok,False,0.0255,"Inside, small room",True,78.17,53.69
+3,2026-10-22T04:44:16.536,72.44,ok,False,0.1272,White noise,True,74.23,54.65
+4,2026-10-22T05:02:48.020,68.44,ok,False,0.0335,Silence,True,69.62,51.91
+5,2026-10-22T05:27:22.404,74.78,ok,False,0.031,"Outside, rural or natural",True,77.05,56.77
+6,2026-10-22T05:43:09.528,74.29,ok,False,0.1028,Vehicle,True,75.65,56.59
+7,2026-10-22T05:54:01.790,75.37,ok,False,0.0915,Silence,True,77.14,55.52
+8,2026-10-22T05:59:45.233,76.76,ok,False,0.0759,White noise,True,79.51,58.37
+9,2026-10-22T06:09:46.061,70.24,ok,False,0.0556,"Outside, rural or natural",True,71.14,55.05
+10,2026-10-22T06:12:17.864,76.49,ok,False,0.2036,Vehicle,True,78.87,59.84
+11,2026-10-22T06:13:29.401,84.56,ok,False,0.3248,Vehicle,True,87.92,64.65
+12,2026-10-22T06:18:16.852,83.95,ok,False,0.2216,Vehicle,True,85.3,67.15
+13,2026-10-22T06:19:27.346,80.25,ok,False,0.2267,Vehicle,True,84.16,62.09
