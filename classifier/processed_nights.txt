@@ -7,3 +7,4 @@ night_2026-09-08_summary.zip
 night_2026-09-09_summary.zip
 night_2026-10-20_summary.zip
 night_2026-10-21_summary.zip
+night_2026-10-24_summary.zip

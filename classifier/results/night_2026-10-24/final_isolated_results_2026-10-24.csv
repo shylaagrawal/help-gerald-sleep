@@ -1,0 +1,13 @@
+event_id,centroid_timestamp,isolated_db_a,isolation_note,used_raw_peak_fallback,vehicle_confidence,top_class,exceeds_who_45db_threshold,raw_peak_db,raw_baseline_db
+0,2026-10-25T00:12:17.129,74.27,ok,False,0.1052,Silence,True,78.23,53.77
+1,2026-10-25T00:23:57.503,71.99,ok,False,0.072,White noise,True,74.23,52.95
+2,2026-10-25T00:41:15.825,72.07,ok,False,0.0494,Silence,True,74.28,54.97
+4,2026-10-25T00:44:47.566,74.56,ok,False,0.0343,Silence,True,76.75,55.94
+5,2026-10-25T01:05:19.963,67.66,ok,False,0.0306,Silence,True,68.37,52.19
+6,2026-10-25T01:39:28.494,71.84,ok,False,0.0285,Silence,True,73.81,52.41
+7,2026-10-25T03:32:27.952,67.73,ok,False,0.0403,Animal,True,68.7,52.11
+9,2026-10-25T06:15:19.086,78.8,ok,False,0.0651,Water,True,96.96,53.04
+10,2026-10-25T06:16:24.444,78.11,ok,False,0.0835,Water,True,81.36,53.47
+11,2026-10-25T06:16:40.520,76.44,event_not_above_background,True,0.0688,Pink noise,True,76.44,53.72
+12,2026-10-25T06:17:03.208,82.81,ok,False,0.0588,Pink noise,True,88.19,54.71
+13,2026-10-25T06:28:33.035,82.15,ok,False,0.0437,Rustle,True,83.78,61.72
