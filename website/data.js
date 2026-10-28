@@ -1,34 +1,70 @@
 // ============================================
-// Help Gerald Sleep — data page (complete rebuild)
+// Help Gerald Sleep — data page
 // Dropdown night selector. The overnight chart is the interface: click
 // a dot to hear that car, and watch a synced mini dB-vs-time chart with
-// a moving playhead while the (now fixed-length, ~15s) clip plays.
+// a moving playhead while the ~15s clip plays.
 // Every number on this page comes from real CSVs -- nothing simulated.
 // ============================================
 
 const WHO_THRESHOLD_DB = 45;
-const MAX_CHART_POINTS = 900;
-const MIN_VALID_RAW_ROWS = 60; // fewer than a minute of real readings = treat as no data
-const EVENT_CLIP_SECONDS = 15; // matches the fixed clip length prepare_web_assets.py now exports
+const MAX_CHART_POINTS = 1200;      // points actually drawn on the overnight chart
+const MIN_VALID_RAW_ROWS = 60;      // fewer than a minute of real readings = treat as no data
+const EVENT_CLIP_SECONDS = 15;      // matches the fixed clip length prepare_web_assets.py exports
+const MAX_CANVAS_CSS_PX = 3000;     // hard ceiling so a canvas can never balloon
+const MAIN_CHART_FALLBACK_H = 340;
+const MINI_CHART_FALLBACK_H = 80;
 
 let manifestData = [];
 let currentIndex = 0;
 let currentNight = null;
 let selectedEventId = null;
+let selectedSlice = [];             // raw readings around the selected car (computed once per click)
 let chartLayout = null;
 let hoveredMarkerId = null;
 let playheadRAF = null;
+let loadToken = 0;                  // ignores stale loads if the user switches nights quickly
+
+// ---------- small helpers ----------
+
+function splitCSVLine(line) {
+  if (line.indexOf('"') === -1) return line.split(',');
+  const cells = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (line[i + 1] === '"') { cur += '"'; i++; } else { inQuotes = false; }
+      } else {
+        cur += ch;
+      }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ',') {
+      cells.push(cur);
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  cells.push(cur);
+  return cells;
+}
 
 function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
+  const lines = text.replace(/^\uFEFF/, '').trim().split(/\r?\n/);
   if (lines.length < 2) return [];
-  const headers = lines[0].split(',');
-  return lines.slice(1).map(line => {
-    const cells = line.split(',');
+  const headers = splitCSVLine(lines[0]).map(h => h.trim());
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i]) continue;
+    const cells = splitCSVLine(lines[i]);
     const row = {};
-    headers.forEach((h, i) => { row[h] = cells[i]; });
-    return row;
-  });
+    for (let j = 0; j < headers.length; j++) row[headers[j]] = cells[j];
+    rows.push(row);
+  }
+  return rows;
 }
 
 async function fetchCSV(path) {
@@ -43,6 +79,25 @@ async function fetchJSON(path) {
   return res.json();
 }
 
+// Loops instead of Math.min(...array): spreading tens of thousands of
+// values into a function call can overflow the call stack.
+function arrMin(values) {
+  let m = Infinity;
+  for (let i = 0; i < values.length; i++) if (values[i] < m) m = values[i];
+  return m;
+}
+function arrMax(values) {
+  let m = -Infinity;
+  for (let i = 0; i < values.length; i++) if (values[i] > m) m = values[i];
+  return m;
+}
+function arrMean(values) {
+  let s = 0;
+  for (let i = 0; i < values.length; i++) s += values[i];
+  return s / values.length;
+}
+function clamp(n, lo, hi) { return Math.min(Math.max(n, lo), hi); }
+
 function fmtTime(date) {
   return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
@@ -50,6 +105,57 @@ function fmtTime(date) {
 function fmtDateLabel(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
   return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Sizes a canvas from its WRAPPER (which has a fixed CSS height), never
+// from the canvas's own previous size. Only reallocates when the target
+// size actually changes, so redrawing every frame during playback is cheap
+// and can never feed back into the layout.
+function prepareCanvas(canvas, fallbackHeight) {
+  const wrap = canvas.parentElement;
+  const rect = wrap.getBoundingClientRect();
+  const width = clamp(Math.round(rect.width) || 600, 1, MAX_CANVAS_CSS_PX);
+  let height = Math.round(rect.height);
+  if (!height || height < 20) height = fallbackHeight;
+  height = clamp(height, 1, MAX_CANVAS_CSS_PX);
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const pw = Math.round(width * dpr);
+  const ph = Math.round(height * dpr);
+  if (canvas.width !== pw || canvas.height !== ph) {
+    canvas.width = pw;
+    canvas.height = ph;
+  }
+
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+  return { ctx, width, height };
+}
+
+// Peak-preserving downsample: keeps the lowest and highest reading in each
+// bucket, so short loud spikes still show up on the chart.
+function downsample(points, maxPoints) {
+  if (points.length <= maxPoints) return points;
+  const buckets = Math.floor(maxPoints / 2);
+  const size = points.length / buckets;
+  const out = [];
+  for (let b = 0; b < buckets; b++) {
+    const start = Math.floor(b * size);
+    const end = Math.min(points.length, Math.floor((b + 1) * size));
+    if (start >= end) continue;
+    let minP = points[start];
+    let maxP = points[start];
+    for (let i = start + 1; i < end; i++) {
+      const p = points[i];
+      if (p.db < minP.db) minP = p;
+      if (p.db > maxP.db) maxP = p;
+    }
+    if (minP === maxP) out.push(minP);
+    else if (minP.time < maxP.time) out.push(minP, maxP);
+    else out.push(maxP, minP);
+  }
+  return out;
 }
 
 // ---------- loading ----------
@@ -71,14 +177,17 @@ async function init() {
   manifestData.sort((a, b) => b.date.localeCompare(a.date));
   renderNightDropdown();
   currentIndex = 0;
-  await loadNight(manifestData[0].date);
+  updateArrows();
 
   document.getElementById('prevNight').addEventListener('click', () => stepNight(1));
   document.getElementById('nextNight').addEventListener('click', () => stepNight(-1));
   document.getElementById('nightSelect').addEventListener('change', (e) => {
     currentIndex = manifestData.findIndex(n => n.date === e.target.value);
+    updateArrows();
     loadNight(e.target.value);
   });
+
+  await loadNight(manifestData[0].date);
 }
 
 function renderNightDropdown() {
@@ -92,24 +201,49 @@ function renderNightDropdown() {
   });
 }
 
+function updateArrows() {
+  // Dropdown is newest-first: "previous night" moves down the list (older).
+  document.getElementById('prevNight').disabled = currentIndex >= manifestData.length - 1;
+  document.getElementById('nextNight').disabled = currentIndex <= 0;
+}
+
 function stepNight(direction) {
   const newIndex = currentIndex + direction;
   if (newIndex < 0 || newIndex >= manifestData.length) return;
   currentIndex = newIndex;
   const date = manifestData[currentIndex].date;
   document.getElementById('nightSelect').value = date;
+  updateArrows();
   loadNight(date);
 }
 
-async function loadNight(date) {
-  stopPlayheadLoop();
-  selectedEventId = null;
+function showNightAsInvalid() {
+  currentNight = null;
+  document.getElementById('invalidNightNotice').style.display = 'block';
+  document.getElementById('validNightContent').style.display = 'none';
+  renderGeraldStatus(null, false);
+}
 
-  const [peaks, final, raw] = await Promise.all([
-    fetchCSV(`data/${date}/peaks.csv`),
-    fetchCSV(`data/${date}/final.csv`),
-    fetchCSV(`data/${date}/raw.csv`).catch(() => []),
-  ]);
+async function loadNight(date) {
+  const token = ++loadToken;
+  stopPlayheadLoop();
+  stopAudio();
+  selectedEventId = null;
+  selectedSlice = [];
+  hoveredMarkerId = null;
+
+  let peaks, final, raw;
+  try {
+    [peaks, final, raw] = await Promise.all([
+      fetchCSV(`data/${date}/peaks.csv`),
+      fetchCSV(`data/${date}/final.csv`),
+      fetchCSV(`data/${date}/raw.csv`).catch(() => []),
+    ]);
+  } catch (err) {
+    if (token === loadToken) showNightAsInvalid();
+    return;
+  }
+  if (token !== loadToken) return; // user already switched to another night
 
   const finalById = {};
   final.forEach(row => { finalById[row.event_id] = row; });
@@ -128,12 +262,12 @@ async function loadNight(date) {
         note: f.isolation_note,
       };
     })
-    .filter(Boolean)
+    .filter(e => e && !isNaN(e.isolatedDb) && !isNaN(e.time.getTime()))
     .sort((a, b) => a.time - b.time);
 
   const rawPoints = raw
     .map(r => ({ time: new Date(r.timestamp), db: parseFloat(r.calibrated_db_a) }))
-    .filter(r => !isNaN(r.db))
+    .filter(r => !isNaN(r.db) && !isNaN(r.time.getTime()))
     .sort((a, b) => a.time - b.time);
 
   currentNight = { date, raw: rawPoints, events };
@@ -148,87 +282,93 @@ async function loadNight(date) {
   }
 
   renderGeraldStatus(currentNight, true);
-  renderStatTiles(currentNight);
+  renderCarStats(currentNight);
   clearEventDetail();
   drawChart();
 }
 
-// ---------- Gerald status ----------
+// ---------- Gerald status banner ----------
 
 function renderGeraldStatus(night, isValid) {
   const badge = document.getElementById('geraldBadge');
   const title = document.getElementById('geraldTitle');
   const desc = document.getElementById('geraldDesc');
+  const stats = document.getElementById('nightStats');
 
   if (!isValid) {
     badge.textContent = 'No data';
     badge.className = 'gerald-badge warn';
     title.textContent = "Gerald's numbers are missing for this night";
     desc.textContent = 'Nothing usable was recorded -- see the note below.';
+    desc.style.display = 'block';
+    stats.style.display = 'none';
     return;
   }
 
-  const peak = night.events.length ? Math.max(...night.events.map(e => e.isolatedDb)) : null;
-  const violations = night.events.filter(e => e.exceedsWho).length;
+  // Whole-night numbers, written plainly inside the banner itself.
+  const rawVals = night.raw.map(r => r.db);
+  document.getElementById('statNightAvg').textContent = arrMean(rawVals).toFixed(1);
+  document.getElementById('statNightLoudest').textContent = arrMax(rawVals).toFixed(1);
+  document.getElementById('statNightQuietest').textContent = arrMin(rawVals).toFixed(1);
+  stats.style.display = 'block';
 
-  if (peak === null) {
+  if (!night.events.length) {
     badge.textContent = 'No events';
     badge.className = 'gerald-badge ok';
     title.textContent = 'A quiet night';
     desc.textContent = "Gerald didn't detect any vehicle events crossing the peak-detection threshold this night.";
+    desc.style.display = 'block';
     return;
   }
+
+  desc.style.display = 'none';
+  const peak = arrMax(night.events.map(e => e.isolatedDb));
 
   if (peak > 60) {
     badge.textContent = 'WHO limit exceeded';
     badge.className = 'gerald-badge violation';
     title.textContent = 'Gerald was startled awake';
-    desc.textContent = `${violations} of ${night.events.length} detected events crossed the WHO 45 dB(A) nighttime guideline. Loudest isolated level: ${peak.toFixed(1)} dB(A).`;
   } else if (peak > WHO_THRESHOLD_DB) {
     badge.textContent = 'Elevated';
     badge.className = 'gerald-badge warn';
     title.textContent = 'Gerald was restless';
-    desc.textContent = `${violations} of ${night.events.length} events crossed the WHO 45 dB(A) guideline, though nothing severe.`;
   } else {
     badge.textContent = 'Within WHO guideline';
     badge.className = 'gerald-badge ok';
     title.textContent = 'Gerald mostly slept fine';
-    desc.textContent = `All ${night.events.length} detected events stayed under the WHO 45 dB(A) nighttime guideline.`;
   }
 }
 
-// ---------- stat tiles ----------
+// ---------- car stat cards ----------
 
-function renderStatTiles(night) {
+function renderCarStats(night) {
   const events = night.events;
-  const raw = night.raw;
-
   document.getElementById('statEvents').textContent = events.length;
 
   if (events.length) {
-    const isolatedVals = events.map(e => e.isolatedDb);
-    document.getElementById('statLoudestCar').textContent = Math.max(...isolatedVals).toFixed(1);
-    document.getElementById('statQuietestCar').textContent = Math.min(...isolatedVals).toFixed(1);
-    document.getElementById('statAvgCar').textContent = (isolatedVals.reduce((a, b) => a + b, 0) / isolatedVals.length).toFixed(1);
-    document.getElementById('statViolations').textContent = events.filter(e => e.exceedsWho).length;
+    const vals = events.map(e => e.isolatedDb);
+    document.getElementById('statLoudestCar').textContent = arrMax(vals).toFixed(1);
+    document.getElementById('statQuietestCar').textContent = arrMin(vals).toFixed(1);
+    document.getElementById('statAvgCar').textContent = arrMean(vals).toFixed(1);
   } else {
     document.getElementById('statLoudestCar').textContent = '—';
     document.getElementById('statQuietestCar').textContent = '—';
     document.getElementById('statAvgCar').textContent = '—';
-    document.getElementById('statViolations').textContent = '0';
   }
-
-  const rawVals = raw.map(r => r.db);
-  document.getElementById('statNightAvg').textContent = (rawVals.reduce((a, b) => a + b, 0) / rawVals.length).toFixed(1);
-  document.getElementById('statNightLoudest').textContent = Math.max(...rawVals).toFixed(1);
-  document.getElementById('statNightQuietest').textContent = Math.min(...rawVals).toFixed(1);
 }
 
 // ---------- event detail + audio + synced mini chart ----------
 
+function stopAudio() {
+  const audio = document.getElementById('eventAudio');
+  audio.pause();
+}
+
 function clearEventDetail() {
   stopPlayheadLoop();
+  stopAudio();
   selectedEventId = null;
+  selectedSlice = [];
   document.getElementById('eventDetailEmpty').style.display = 'block';
   document.getElementById('eventDetailBody').style.display = 'none';
 }
@@ -247,6 +387,7 @@ function selectEvent(eventId) {
 
   stopPlayheadLoop();
   selectedEventId = eventId;
+  selectedSlice = getEventWindowRawSlice(event);
 
   document.getElementById('eventDetailEmpty').style.display = 'none';
   document.getElementById('eventDetailBody').style.display = 'block';
@@ -255,22 +396,30 @@ function selectEvent(eventId) {
   document.getElementById('detailConfidence').textContent = `${(event.confidence * 100).toFixed(1)}%`;
 
   const note = document.getElementById('detailNote');
-  note.textContent = event.note && event.note !== 'ok'
+  const baseNote = event.note && event.note !== 'ok'
     ? `Note: ${event.note}`
     : `Classifier's closest match: ${event.topClass || 'unknown'}.`;
+  note.textContent = baseNote;
 
   const audio = document.getElementById('eventAudio');
+  audio.pause();
   audio.src = `data/${currentNight.date}/audio/${eventId}.mp3`;
   audio.currentTime = 0;
-  audio.pause();
 
   const playBtn = document.getElementById('playBtn');
   playBtn.textContent = '▶ Play clip';
   playBtn.onclick = () => {
     if (audio.paused) {
-      audio.play();
+      const attempt = audio.play();
       playBtn.textContent = '⏸ Pause';
       startPlayheadLoop(event);
+      if (attempt && attempt.catch) {
+        attempt.catch(() => {
+          playBtn.textContent = '▶ Play clip';
+          stopPlayheadLoop();
+          note.textContent = "Couldn't load this clip's audio.";
+        });
+      }
     } else {
       audio.pause();
       playBtn.textContent = '▶ Play clip';
@@ -289,41 +438,34 @@ function selectEvent(eventId) {
   document.getElementById('eventDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// Slices the real per-second night data to roughly match the clip's
-// actual ~15s window (clips are now a fixed length centered on the car,
-// see prepare_web_assets.py) -- the mini chart reflects real readings.
+// Real per-second readings around the car, to match the clip's ~15s window.
 function getEventWindowRawSlice(event) {
   const halfWindowMs = (EVENT_CLIP_SECONDS / 2 + 1) * 1000; // small buffer for edge-shifted clips
-  const start = new Date(event.time.getTime() - halfWindowMs);
-  const end = new Date(event.time.getTime() + halfWindowMs);
-  return currentNight.raw.filter(r => r.time >= start && r.time <= end);
+  const start = event.time.getTime() - halfWindowMs;
+  const end = event.time.getTime() + halfWindowMs;
+  return currentNight.raw.filter(r => {
+    const t = r.time.getTime();
+    return t >= start && t <= end;
+  });
 }
 
 function drawEventMiniChart(event, playheadFraction) {
   const canvas = document.getElementById('eventMiniChart');
-  const wrap = canvas.parentElement;
-  const dpr = window.devicePixelRatio || 1;
-  const width = wrap.clientWidth;
-  const height = wrap.clientHeight;
+  const { ctx, width, height } = prepareCanvas(canvas, MINI_CHART_FALLBACK_H);
 
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, width, height);
-
-  const slice = getEventWindowRawSlice(event);
+  const slice = selectedSlice;
   if (!slice.length) {
-    ctx.fillStyle = 'rgba(251,247,237,0.4)';
-    ctx.font = '11px Inter, sans-serif';
-    ctx.fillText('No fine-grained trace available for this moment.', 10, height / 2);
+    ctx.fillStyle = 'rgba(251,247,237,0.55)';
+    ctx.font = '12px Inter, sans-serif';
+    ctx.fillText('No fine-grained trace available for this moment.', 12, height / 2 + 4);
     return;
   }
 
-  const minTime = slice[0].time, maxTime = slice[slice.length - 1].time;
+  const minTime = slice[0].time.getTime();
+  const maxTime = slice[slice.length - 1].time.getTime();
   const dbVals = slice.map(r => r.db);
-  const minDb = Math.min(30, ...dbVals) - 3;
-  const maxDb = Math.max(70, ...dbVals) + 3;
+  const minDb = Math.min(30, arrMin(dbVals)) - 3;
+  const maxDb = Math.max(70, arrMax(dbVals)) + 3;
 
   const padLeft = 6, padRight = 6, padTop = 6, padBottom = 6;
   const plotW = width - padLeft - padRight;
@@ -333,7 +475,7 @@ function drawEventMiniChart(event, playheadFraction) {
   const yScale = (db) => padTop + (1 - (db - minDb) / (maxDb - minDb || 1)) * plotH;
 
   const whoY = yScale(WHO_THRESHOLD_DB);
-  ctx.strokeStyle = 'rgba(240,169,140,0.5)';
+  ctx.strokeStyle = 'rgba(240,169,140,0.55)';
   ctx.setLineDash([4, 4]);
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -346,13 +488,13 @@ function drawEventMiniChart(event, playheadFraction) {
   ctx.lineWidth = 2;
   ctx.beginPath();
   slice.forEach((pt, i) => {
-    const x = xScale(pt.time), y = yScale(pt.db);
+    const x = xScale(pt.time.getTime()), y = yScale(pt.db);
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   });
   ctx.stroke();
 
   if (playheadFraction !== null && playheadFraction !== undefined) {
-    const x = padLeft + playheadFraction * plotW;
+    const x = padLeft + clamp(playheadFraction, 0, 1) * plotW;
     ctx.strokeStyle = 'rgba(251,247,237,0.9)';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -365,7 +507,7 @@ function drawEventMiniChart(event, playheadFraction) {
 function startPlayheadLoop(event) {
   const audio = document.getElementById('eventAudio');
   function tick() {
-    if (audio.paused || audio.ended) return;
+    if (audio.paused || audio.ended) { playheadRAF = null; return; }
     const fraction = audio.duration ? (audio.currentTime / audio.duration) : 0;
     drawEventMiniChart(event, fraction);
     playheadRAF = requestAnimationFrame(tick);
@@ -375,46 +517,29 @@ function startPlayheadLoop(event) {
 
 // ---------- main overnight chart ----------
 
-function downsample(points, maxPoints) {
-  if (points.length <= maxPoints) return points;
-  const step = Math.ceil(points.length / maxPoints);
-  const out = [];
-  for (let i = 0; i < points.length; i += step) out.push(points[i]);
-  return out;
-}
-
 function drawChart() {
   if (!currentNight) return;
   const canvas = document.getElementById('acousticChart');
-  const wrap = canvas.parentElement;
-  const dpr = window.devicePixelRatio || 1;
-  const width = wrap.clientWidth;
-  const height = wrap.clientHeight;
-
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, width, height);
+  const { ctx, width, height } = prepareCanvas(canvas, MAIN_CHART_FALLBACK_H);
 
   const raw = downsample(currentNight.raw, MAX_CHART_POINTS);
   const events = currentNight.events;
 
   if (!raw.length && !events.length) {
-    ctx.fillStyle = 'rgba(251,247,237,0.4)';
+    ctx.fillStyle = 'rgba(251,247,237,0.55)';
     ctx.font = '13px Inter, sans-serif';
     ctx.fillText('No data for this night yet.', 16, height / 2);
     chartLayout = null;
     return;
   }
 
-  const allTimes = raw.map(r => r.time).concat(events.map(e => e.time));
-  const minTime = new Date(Math.min(...allTimes));
-  const maxTime = new Date(Math.max(...allTimes));
+  const allTimes = raw.map(r => r.time.getTime()).concat(events.map(e => e.time.getTime()));
+  const minTime = arrMin(allTimes);
+  const maxTime = arrMax(allTimes);
 
   const allDb = raw.map(r => r.db).concat(events.map(e => e.isolatedDb));
-  const minDb = Math.min(30, ...allDb) - 5;
-  const maxDb = Math.max(70, ...allDb) + 5;
+  const minDb = Math.min(30, arrMin(allDb)) - 5;
+  const maxDb = Math.max(70, arrMax(allDb)) + 5;
 
   const padLeft = 40, padRight = 14, padTop = 14, padBottom = 28;
   const plotW = width - padLeft - padRight;
@@ -423,8 +548,8 @@ function drawChart() {
   const xScale = (t) => padLeft + ((t - minTime) / (maxTime - minTime || 1)) * plotW;
   const yScale = (db) => padTop + (1 - (db - minDb) / (maxDb - minDb || 1)) * plotH;
 
-  ctx.strokeStyle = 'rgba(251,247,237,0.08)';
-  ctx.fillStyle = 'rgba(251,247,237,0.45)';
+  ctx.strokeStyle = 'rgba(251,247,237,0.1)';
+  ctx.fillStyle = 'rgba(251,247,237,0.65)';
   ctx.font = '10px "IBM Plex Mono", monospace';
   ctx.lineWidth = 1;
   for (let db = Math.ceil(minDb / 10) * 10; db <= maxDb; db += 10) {
@@ -436,11 +561,11 @@ function drawChart() {
     ctx.fillText(`${db}`, 4, y + 3);
   }
 
-  const tickCount = 6;
+  const tickCount = width < 520 ? 3 : 6;
   for (let i = 0; i <= tickCount; i++) {
-    const t = new Date(minTime.getTime() + (i / tickCount) * (maxTime - minTime));
-    const x = xScale(t);
-    ctx.fillText(fmtTime(t), Math.min(Math.max(x - 18, padLeft), width - padRight - 36), height - 8);
+    const t = new Date(minTime + (i / tickCount) * (maxTime - minTime));
+    const x = xScale(t.getTime());
+    ctx.fillText(fmtTime(t), clamp(x - 18, padLeft, width - padRight - 40), height - 8);
   }
 
   const whoY = yScale(WHO_THRESHOLD_DB);
@@ -454,11 +579,11 @@ function drawChart() {
   ctx.setLineDash([]);
 
   if (raw.length > 1) {
-    ctx.strokeStyle = 'rgba(251,247,237,0.55)';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(251,247,237,0.6)';
+    ctx.lineWidth = 1.25;
     ctx.beginPath();
     raw.forEach((pt, i) => {
-      const x = xScale(pt.time), y = yScale(pt.db);
+      const x = xScale(pt.time.getTime()), y = yScale(pt.db);
       if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.stroke();
@@ -469,7 +594,7 @@ function drawChart() {
   const markerPositions = [];
 
   events.forEach(e => {
-    const x = xScale(e.time), y = yScale(e.isolatedDb);
+    const x = xScale(e.time.getTime()), y = yScale(e.isolatedDb);
     const isSelected = e.id === selectedEventId;
     const isHovered = e.id === hoveredMarkerId;
     const color = e.exceedsWho ? red : amber;
@@ -520,8 +645,7 @@ function handleChartClick(evt) {
 
 function handleChartMove(evt) {
   const closest = findClosestMarker(evt);
-  const canvas = evt.currentTarget;
-  canvas.style.cursor = closest ? 'pointer' : 'default';
+  evt.currentTarget.style.cursor = closest ? 'pointer' : 'default';
   const newHoverId = closest ? closest.id : null;
   if (newHoverId !== hoveredMarkerId) {
     hoveredMarkerId = newHoverId;
@@ -545,6 +669,8 @@ window.addEventListener('resize', () => {
 const chartCanvas = document.getElementById('acousticChart');
 chartCanvas.addEventListener('click', handleChartClick);
 chartCanvas.addEventListener('mousemove', handleChartMove);
-chartCanvas.addEventListener('mouseleave', () => { hoveredMarkerId = null; drawChart(); });
+chartCanvas.addEventListener('mouseleave', () => {
+  if (hoveredMarkerId !== null) { hoveredMarkerId = null; drawChart(); }
+});
 
 init();
