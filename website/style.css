@@ -575,10 +575,10 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
    everything else on the right. */
 .data-layout{display:grid;grid-template-columns:1fr;gap:2rem;}
 .data-main-col{min-width:0;}
-@media(min-width:980px){
-  .data-layout{grid-template-columns:320px minmax(0,1fr);gap:2.5rem;align-items:start;}
+@media(min-width:1040px){
+  .data-layout{grid-template-columns:380px minmax(0,1fr);gap:2.5rem;align-items:start;}
 }
-@media(min-width:980px) and (min-height:900px){
+@media(min-width:1040px) and (min-height:900px){
   .data-side{position:sticky;top:5.5rem;}
 }
 
@@ -593,13 +593,6 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   color:var(--moon-50);
 }
 .data-intro p{max-width:600px;margin:0 auto;color:var(--data-soft);line-height:1.7;}
-.freshness-note{
-  display:flex;align-items:center;justify-content:center;gap:0.5rem;
-  font-family:var(--mono);font-size:0.75rem;color:var(--data-faint);
-  margin-top:1rem !important;
-}
-.freshness-dot{width:7px;height:7px;border-radius:50%;background:var(--amber-500);flex-shrink:0;}
-
 .night-selector{display:flex;align-items:center;justify-content:center;gap:0.6rem;margin:0 0 1.5rem;}
 .night-arrow{
   width:36px;height:36px;border-radius:50%;flex-shrink:0;
@@ -613,14 +606,13 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   font-family:var(--mono);font-size:0.9rem;
   background:rgba(251,247,237,0.06);border:1px solid rgba(251,247,237,0.22);
   color:var(--moon-50);padding:0.6rem 1rem;border-radius:999px;cursor:pointer;
-  min-width:0;flex:1;max-width:230px;text-align:center;
+  min-width:0;flex:1;text-align:center;
 }
 .night-select option{background:var(--night-900);color:var(--moon-50);}
 
-@media(min-width:980px){
+@media(min-width:1040px){
   .data-intro{text-align:left;}
   .data-intro h1,.data-intro p{margin-left:0;margin-right:0;}
-  .freshness-note{justify-content:flex-start;}
   .night-selector{justify-content:flex-start;}
 }
 
@@ -759,7 +751,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 
 /* ---- Methodology + hardware ---- */
 .data-methodology{
-  max-width:640px;margin:2rem auto 2.5rem;text-align:center;
+  max-width:640px;margin:3rem auto 2rem;text-align:center;
   font-size:0.84rem;color:var(--data-soft);line-height:1.65;
 }
 .data-methodology a{color:var(--amber-300);font-weight:600;}
@@ -769,6 +761,8 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   border:1px solid var(--data-border);
   border-radius:var(--radius);
   padding:1.2rem 1.4rem;
+  max-width:640px;
+  margin:0 auto;
 }
 .hardware-title{font-weight:600;font-size:0.95rem;margin:0 0 0.8rem;color:var(--moon-50);}
 .hardware-list{list-style:none;margin:0;padding:0;font-size:0.85rem;}
