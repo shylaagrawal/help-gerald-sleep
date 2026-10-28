@@ -170,6 +170,7 @@ async function init() {
   if (!manifestData.length) {
     document.getElementById('dataContent').style.display = 'none';
     document.querySelector('.night-selector').style.display = 'none';
+    document.getElementById('geraldStatus').style.display = 'none';
     document.getElementById('noDataMessage').style.display = 'block';
     return;
   }
