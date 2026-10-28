@@ -41,10 +41,9 @@
       <!-- LEFT: title + date picker -->
       <aside class="data-side">
         <div class="data-intro">
-          <p class="eyebrow">Straight from Gerald's mic</p>
-          <h1>What Gerald actually heard</h1>
+          <p class="eyebrow">Data</p>
+          <h1>Straight from Gerald's mic</h1>
           <p>Every night, Gerald records sound from my windowsill, extracting the peak events and filtering environmental noise from them.</p>
-          <p class="freshness-note"><span class="freshness-dot"></span>Updated automatically every morning after Gerald's overnight recording</p>
         </div>
 
         <!-- Night selector: dropdown + arrows, scales to any number of nights -->
@@ -150,24 +149,25 @@
 
           </div>
 
-          <p class="data-methodology">Sound levels are calibrated against a phone SPL meter (R² = 0.97), not lab equipment — treat the loudest events (75+ dB(A)) as approximate until Gerald is recalibrated with more loud-end reference points. "Isolated" level subtracts the ambient background from each event to estimate the vehicle's own contribution. Audio clips are a fixed 15 seconds, centered on the moment the car actually passed. <a href="https://docs.google.com/document/d/15aomqM8IHhXJBvnAWnDzRJ5AM9dYTJvhZWyUxfcYuEE/edit?tab=t.hzkjctti4e85" target="_blank" rel="noopener">Read the full methodology →</a></p>
-
-          <div class="hardware-card">
-            <p class="hardware-title">The hardware behind this data</p>
-            <ul class="hardware-list">
-              <li><span>Computer</span><span>Raspberry Pi Zero W</span></li>
-              <li><span>Microphone</span><span>INMP441 I2S MEMS</span></li>
-              <li><span>Housing</span><span>3D-printed</span></li>
-              <li><span>Classification</span><span>YAMNet (Google AudioSet)</span></li>
-            </ul>
-          </div>
-
         </div>
 
         <p class="event-detail-empty" id="noDataMessage" style="display:none;text-align:center;padding:3rem 0;">Gerald hasn't uploaded any processed nights yet — check back soon.</p>
       </div>
 
     </div>
+
+    <!-- Below the two-column area: how the numbers were made + the hardware -->
+  <p class="data-methodology">Sound levels are calibrated against a phone SPL meter (R² = 0.97), not lab equipment — treat the loudest events (75+ dB(A)) as approximate until Gerald is recalibrated with more loud-end reference points. "Isolated" level subtracts the ambient background from each event to estimate the vehicle's own contribution. Audio clips are a fixed 15 seconds, centered on the moment the car actually passed. <a href="https://docs.google.com/document/d/15aomqM8IHhXJBvnAWnDzRJ5AM9dYTJvhZWyUxfcYuEE/edit?tab=t.hzkjctti4e85" target="_blank" rel="noopener">Read the full methodology →</a></p>
+
+  <div class="hardware-card">
+    <p class="hardware-title">The hardware behind this data</p>
+    <ul class="hardware-list">
+      <li><span>Computer</span><span>Raspberry Pi Zero W</span></li>
+      <li><span>Microphone</span><span>INMP441 I2S MEMS</span></li>
+      <li><span>Housing</span><span>3D-printed</span></li>
+      <li><span>Classification</span><span>YAMNet (Google AudioSet)</span></li>
+    </ul>
+  </div>
   </div>
 </section>
 
