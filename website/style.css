@@ -577,6 +577,8 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 .data-main-col{min-width:0;}
 @media(min-width:980px){
   .data-layout{grid-template-columns:320px minmax(0,1fr);gap:2.5rem;align-items:start;}
+}
+@media(min-width:980px) and (min-height:900px){
   .data-side{position:sticky;top:5.5rem;}
 }
 
@@ -598,7 +600,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 }
 .freshness-dot{width:7px;height:7px;border-radius:50%;background:var(--amber-500);flex-shrink:0;}
 
-.night-selector{display:flex;align-items:center;justify-content:center;gap:0.6rem;margin:0;}
+.night-selector{display:flex;align-items:center;justify-content:center;gap:0.6rem;margin:0 0 1.5rem;}
 .night-arrow{
   width:36px;height:36px;border-radius:50%;flex-shrink:0;
   background:rgba(251,247,237,0.06);border:1px solid rgba(251,247,237,0.18);
@@ -635,42 +637,39 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   margin:0 0 1.25rem;
 }
 
-/* ---- Gerald status card: headline left, car count right ---- */
+/* ---- Gerald status card (left column): headline, then car count ---- */
 .gerald-status{
-  display:flex;align-items:center;gap:1.4rem;
+  display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.1rem;
   background:var(--data-card);
   border:1px solid var(--data-border);
   border-radius:20px;
-  padding:1.5rem 1.6rem;
-  margin-bottom:1rem;
+  padding:1.4rem;
   color:var(--moon-50);
+  text-align:left;
 }
-.gerald-status-img{width:84px;height:84px;object-fit:contain;flex-shrink:0;}
-.gerald-status-text{flex:1;min-width:0;}
+.gerald-status-img{width:64px;height:64px;object-fit:contain;flex-shrink:0;}
+.gerald-status-text{flex:1;min-width:150px;}
 .gerald-badge{
-  display:inline-block;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.08em;
+  display:inline-block;font-family:var(--mono);font-size:0.66rem;letter-spacing:0.08em;
   text-transform:uppercase;padding:0.3rem 0.7rem;border-radius:999px;margin-bottom:0.6rem;
 }
 .gerald-badge.ok{background:rgba(253,117,0,0.18);color:var(--amber-300);border:1px solid rgba(253,117,0,0.4);}
 .gerald-badge.warn{background:rgba(253,117,0,0.28);color:#ffcf9e;border:1px solid rgba(253,117,0,0.55);}
 .gerald-badge.violation{background:rgba(193,80,46,0.28);color:#F7C3AA;border:1px solid rgba(193,80,46,0.6);}
 .gerald-status-title{
-  font-family:var(--display);font-weight:600;font-size:1.45rem;line-height:1.25;
+  font-family:var(--display);font-weight:600;font-size:1.3rem;line-height:1.25;
   margin:0;color:var(--moon-50);
 }
-.gerald-status-desc{margin:0.6rem 0 0;color:var(--data-soft);font-size:0.95rem;line-height:1.6;}
+.gerald-status-desc{margin:0.6rem 0 0;color:var(--data-soft);font-size:0.9rem;line-height:1.55;}
 
 .gerald-status-count{
-  flex-shrink:0;text-align:center;
-  padding-left:1.5rem;
-  border-left:1px solid var(--data-border);
-  min-width:112px;
+  flex-basis:100%;
+  display:flex;align-items:baseline;gap:0.75rem;
+  border-top:1px solid var(--data-border);
+  padding-top:1rem;
 }
-.gerald-count-num{
-  display:block;font-family:var(--mono);font-weight:600;
-  font-size:2.7rem;line-height:1;color:var(--amber-300);
-}
-.gerald-count-label{display:block;margin-top:0.45rem;font-size:0.82rem;color:var(--data-soft);}
+.gerald-count-num{font-family:var(--mono);font-weight:600;font-size:2.5rem;line-height:1;color:var(--amber-300);}
+.gerald-count-label{font-size:0.9rem;color:var(--data-soft);}
 
 /* ---- Number cards: one row ---- */
 .data-stat-grid{
@@ -698,9 +697,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   margin-bottom:1.25rem;
 }
 .chart-card-header{margin-bottom:1rem;}
-.chart-card-header h3{font-family:var(--display);font-weight:600;font-size:1.2rem;margin:0 0 0.4rem;color:var(--moon-50);}
-.chart-card-header p{margin:0;color:var(--data-soft);font-size:0.9rem;line-height:1.55;}
-.chart-card-header strong{color:var(--amber-300);}
+.chart-card-header h3{font-family:var(--display);font-weight:600;font-size:1.2rem;margin:0;color:var(--moon-50);}
 .chart-wrap{position:relative;width:100%;height:340px;}
 #acousticChart{position:absolute;inset:0;width:100%;height:100%;display:block;}
 .chart-legend{
@@ -783,11 +780,6 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 .hardware-list li span:last-child{font-family:var(--mono);color:var(--amber-300);text-align:right;}
 
 @media(max-width:560px){
-  .gerald-status{flex-direction:column;text-align:center;}
-  .gerald-status-count{
-    border-left:none;border-top:1px solid var(--data-border);
-    padding:1rem 0 0;width:100%;
-  }
   .data-stat-grid{grid-template-columns:repeat(2,1fr);}
   .chart-wrap{height:260px;}
 }
