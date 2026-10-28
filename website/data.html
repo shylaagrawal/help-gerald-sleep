@@ -53,25 +53,25 @@
           <select id="nightSelect" class="night-select" aria-label="Choose a night"></select>
           <button class="night-arrow" id="nextNight" aria-label="Next night">›</button>
         </div>
+
+        <!-- Gerald status: headline + car count -->
+        <div class="gerald-status" id="geraldStatus">
+          <img src="assets/hero-graphic.png" alt="" class="gerald-status-img">
+          <div class="gerald-status-text">
+            <span class="gerald-badge" id="geraldBadge">Loading…</span>
+            <p class="gerald-status-title" id="geraldTitle">Loading Gerald's night…</p>
+            <p class="gerald-status-desc" id="geraldDesc">Fetching last night's numbers.</p>
+          </div>
+          <div class="gerald-status-count" id="geraldCount">
+            <span class="gerald-count-num" id="statEvents">—</span>
+            <span class="gerald-count-label">cars detected</span>
+          </div>
+        </div>
       </aside>
 
       <!-- RIGHT: status card, numbers, graph, recording -->
       <div class="data-main-col">
         <div id="dataContent">
-
-          <!-- Gerald status: headline on the left, car count on the right -->
-          <div class="gerald-status" id="geraldStatus">
-            <img src="assets/hero-graphic.png" alt="" class="gerald-status-img">
-            <div class="gerald-status-text">
-              <span class="gerald-badge" id="geraldBadge">Loading…</span>
-              <p class="gerald-status-title" id="geraldTitle">Loading Gerald's night…</p>
-              <p class="gerald-status-desc" id="geraldDesc">Fetching last night's numbers.</p>
-            </div>
-            <div class="gerald-status-count" id="geraldCount">
-              <span class="gerald-count-num" id="statEvents">—</span>
-              <span class="gerald-count-label">cars detected</span>
-            </div>
-          </div>
 
           <!-- Shown instead of stats/chart when a night has no usable data -->
           <p class="invalid-night-notice" id="invalidNightNotice" style="display:none;">
@@ -104,7 +104,6 @@
             <div class="chart-card">
               <div class="chart-card-header">
                 <h3>Overnight sound level</h3>
-                <p>The gray trace is Gerald's real per-second reading. Each dot is a detected car — <strong>click one to hear it</strong>.</p>
               </div>
               <div class="chart-wrap">
                 <canvas id="acousticChart"></canvas>
