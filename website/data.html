@@ -47,19 +47,28 @@
     <!-- Night selector: dropdown + arrows, scales to any number of nights -->
     <div class="night-selector">
       <button class="night-arrow" id="prevNight" aria-label="Previous night">‹</button>
-      <select id="nightSelect" class="night-select"></select>
+      <select id="nightSelect" class="night-select" aria-label="Choose a night"></select>
       <button class="night-arrow" id="nextNight" aria-label="Next night">›</button>
     </div>
 
     <div id="dataContent">
 
-      <!-- Gerald status -->
+      <!-- Gerald status: headline + the whole-night numbers, all in one box -->
       <div class="gerald-status" id="geraldStatus">
-        <img src="assets/hero-graphic.png" alt="" class="gerald-status-img" id="geraldStatusImg">
+        <img src="assets/hero-graphic.png" alt="" class="gerald-status-img">
         <div class="gerald-status-text">
           <span class="gerald-badge" id="geraldBadge">Loading…</span>
           <p class="gerald-status-title" id="geraldTitle">Loading Gerald's night…</p>
           <p class="gerald-status-desc" id="geraldDesc">Fetching last night's numbers.</p>
+
+          <div class="night-stats" id="nightStats" style="display:none;">
+            <p class="night-stats-heading">The whole night, background included</p>
+            <ul class="night-stats-list">
+              <li><span class="night-stats-num" id="statNightAvg">—</span>average level, dB(A)</li>
+              <li><span class="night-stats-num" id="statNightLoudest">—</span>loudest moment, dB(A)</li>
+              <li><span class="night-stats-num" id="statNightQuietest">—</span>quietest moment, dB(A)</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -70,7 +79,7 @@
 
       <div id="validNightContent">
 
-        <p class="stat-group-label">The cars Gerald heard</p>
+        <h2 class="data-section-title">The cars Gerald heard</h2>
         <div class="stat-grid data-stat-grid">
           <div class="stat-card">
             <p class="stat-number" id="statEvents">—</p>
@@ -88,26 +97,6 @@
             <p class="stat-number" id="statAvgCar">—</p>
             <p class="stat-label">average car, dB(A)</p>
           </div>
-          <div class="stat-card">
-            <p class="stat-number" id="statViolations">—</p>
-            <p class="stat-label">cars over the WHO limit</p>
-          </div>
-        </div>
-
-        <p class="stat-group-label">The whole night, background included</p>
-        <div class="stat-grid data-stat-grid">
-          <div class="stat-card">
-            <p class="stat-number" id="statNightAvg">—</p>
-            <p class="stat-label">average level, dB(A)</p>
-          </div>
-          <div class="stat-card">
-            <p class="stat-number" id="statNightLoudest">—</p>
-            <p class="stat-label">loudest moment, dB(A)</p>
-          </div>
-          <div class="stat-card">
-            <p class="stat-number" id="statNightQuietest">—</p>
-            <p class="stat-label">quietest moment, dB(A)</p>
-          </div>
         </div>
 
         <!-- Chart: the real interface -->
@@ -122,7 +111,6 @@
           <div class="chart-legend">
             <span><span class="legend-swatch legend-line"></span>Raw sound level (real data)</span>
             <span><span class="legend-swatch legend-dash"></span>WHO night guideline (45 dB(A))</span>
-            <span><span class="legend-swatch legend-dot" style="background:var(--amber-500);"></span>Car — click to hear</span>
             <span><span class="legend-swatch legend-dot" style="background:var(--signal-red);"></span>Car over WHO limit</span>
           </div>
         </div>
@@ -160,30 +148,12 @@
 
       <p class="data-methodology">Sound levels are calibrated against a phone SPL meter (R² = 0.97), not lab equipment — treat the loudest events (75+ dB(A)) as approximate until Gerald is recalibrated with more loud-end reference points. "Isolated" level subtracts the ambient background from each event to estimate the vehicle's own contribution. Audio clips are a fixed 15 seconds, centered on the moment the car actually passed. <a href="https://docs.google.com/document/d/15aomqM8IHhXJBvnAWnDzRJ5AM9dYTJvhZWyUxfcYuEE/edit?tab=t.hzkjctti4e85" target="_blank" rel="noopener">Read the full methodology →</a></p>
 
-      <div class="policy-ask-grid">
-        <div class="policy-ask-card">
-          <p class="policy-ask-num">1</p>
-          <p class="policy-ask-title">WHO Standard</p>
-          <p class="policy-ask-text">Adopt the WHO's 45 dB(A) nighttime event guideline for residential corridors.</p>
-        </div>
-        <div class="policy-ask-card">
-          <p class="policy-ask-num">2</p>
-          <p class="policy-ask-title">Real Local Data</p>
-          <p class="policy-ask-text">Use continuous local measurement like Gerald's, not county-wide extrapolation, to inform noise policy.</p>
-        </div>
-        <div class="policy-ask-card">
-          <p class="policy-ask-num">3</p>
-          <p class="policy-ask-title">Nighttime Speed Review</p>
-          <p class="policy-ask-text">Revisit nighttime speed limits on corridors showing repeated WHO-threshold violations.</p>
-        </div>
-      </div>
-
       <div class="hardware-card">
         <p class="hardware-title">The hardware behind this data</p>
         <ul class="hardware-list">
           <li><span>Computer</span><span>Raspberry Pi Zero W</span></li>
           <li><span>Microphone</span><span>INMP441 I2S MEMS</span></li>
-          <li><span>Housing</span><span>3D-printed, in progress</span></li>
+          <li><span>Housing</span><span>3D-printed</span></li>
           <li><span>Classification</span><span>YAMNet (Google AudioSet)</span></li>
         </ul>
       </div>
