@@ -559,7 +559,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 #bio .eyebrow{color:var(--amber-500);}
 
 /* ============================================
-   Data page (dark theme)
+   Data page (dark theme, two-column on desktop)
    ============================================ */
 .data-page{
   --data-soft:rgba(246,241,228,0.82);
@@ -569,12 +569,22 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   background:var(--night-900);
   padding:3.5rem 1.5rem 5rem;
 }
-.data-shell{max-width:900px;margin:0 auto;}
+.data-shell{max-width:1080px;margin:0 auto;}
 
-.data-intro{text-align:center;margin-bottom:2rem;}
+/* Mobile: everything stacks. Desktop: title + date picker on the left,
+   everything else on the right. */
+.data-layout{display:grid;grid-template-columns:1fr;gap:2rem;}
+.data-main-col{min-width:0;}
+@media(min-width:980px){
+  .data-layout{grid-template-columns:320px minmax(0,1fr);gap:2.5rem;align-items:start;}
+  .data-side{position:sticky;top:5.5rem;}
+}
+
+/* ---- Left column: title + date picker ---- */
+.data-intro{text-align:center;margin-bottom:1.5rem;}
 .data-intro .eyebrow{color:var(--amber-300);}
 .data-intro h1{
-  font-size:clamp(1.9rem,4.4vw,2.7rem);
+  font-size:clamp(1.9rem,4.4vw,2.5rem);
   max-width:640px;
   margin:0 auto 1rem;
   line-height:1.2;
@@ -588,20 +598,9 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 }
 .freshness-dot{width:7px;height:7px;border-radius:50%;background:var(--amber-500);flex-shrink:0;}
 
-/* Section headers: plain, bright, readable */
-.data-section-title{
-  font-family:var(--display);
-  font-weight:600;
-  font-size:1.25rem;
-  line-height:1.3;
-  color:var(--moon-50);
-  margin:0 0 0.9rem;
-}
-
-/* ---- Night selector ---- */
-.night-selector{display:flex;align-items:center;justify-content:center;gap:0.6rem;margin:0 0 2rem;}
+.night-selector{display:flex;align-items:center;justify-content:center;gap:0.6rem;margin:0;}
 .night-arrow{
-  width:36px;height:36px;border-radius:50%;
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
   background:rgba(251,247,237,0.06);border:1px solid rgba(251,247,237,0.18);
   color:var(--moon-50);font-size:1.2rem;line-height:1;cursor:pointer;
   transition:background 0.15s ease;
@@ -612,9 +611,16 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   font-family:var(--mono);font-size:0.9rem;
   background:rgba(251,247,237,0.06);border:1px solid rgba(251,247,237,0.22);
   color:var(--moon-50);padding:0.6rem 1rem;border-radius:999px;cursor:pointer;
-  min-width:210px;text-align:center;
+  min-width:0;flex:1;max-width:230px;text-align:center;
 }
 .night-select option{background:var(--night-900);color:var(--moon-50);}
+
+@media(min-width:980px){
+  .data-intro{text-align:left;}
+  .data-intro h1,.data-intro p{margin-left:0;margin-right:0;}
+  .freshness-note{justify-content:flex-start;}
+  .night-selector{justify-content:flex-start;}
+}
 
 /* ---- Invalid-night notice ---- */
 .invalid-night-notice{
@@ -626,22 +632,21 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   font-size:0.92rem;
   line-height:1.6;
   text-align:center;
-  max-width:560px;
-  margin:0 auto 2rem;
+  margin:0 0 1.25rem;
 }
 
-/* ---- Gerald status banner (with whole-night numbers inside) ---- */
+/* ---- Gerald status card: headline left, car count right ---- */
 .gerald-status{
-  display:flex;align-items:center;gap:1.75rem;flex-wrap:wrap;
+  display:flex;align-items:center;gap:1.4rem;
   background:var(--data-card);
   border:1px solid var(--data-border);
   border-radius:20px;
-  padding:1.75rem;
-  margin-bottom:2rem;
+  padding:1.5rem 1.6rem;
+  margin-bottom:1rem;
   color:var(--moon-50);
 }
-.gerald-status-img{width:96px;height:96px;object-fit:contain;flex-shrink:0;}
-.gerald-status-text{flex:1;min-width:240px;}
+.gerald-status-img{width:84px;height:84px;object-fit:contain;flex-shrink:0;}
+.gerald-status-text{flex:1;min-width:0;}
 .gerald-badge{
   display:inline-block;font-family:var(--mono);font-size:0.68rem;letter-spacing:0.08em;
   text-transform:uppercase;padding:0.3rem 0.7rem;border-radius:999px;margin-bottom:0.6rem;
@@ -651,37 +656,38 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 .gerald-badge.violation{background:rgba(193,80,46,0.28);color:#F7C3AA;border:1px solid rgba(193,80,46,0.6);}
 .gerald-status-title{
   font-family:var(--display);font-weight:600;font-size:1.45rem;line-height:1.25;
-  margin:0 0 0.7rem;color:var(--moon-50);
+  margin:0;color:var(--moon-50);
 }
-.gerald-status-desc{margin:0;color:var(--data-soft);font-size:0.95rem;line-height:1.6;}
+.gerald-status-desc{margin:0.6rem 0 0;color:var(--data-soft);font-size:0.95rem;line-height:1.6;}
 
-.night-stats-heading{
-  font-family:var(--mono);font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;
-  color:var(--amber-300);margin:0 0 0.55rem;
+.gerald-status-count{
+  flex-shrink:0;text-align:center;
+  padding-left:1.5rem;
+  border-left:1px solid var(--data-border);
+  min-width:112px;
 }
-.night-stats-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0.3rem;}
-.night-stats-list li{font-size:0.95rem;color:var(--data-soft);}
-.night-stats-num{
-  font-family:var(--mono);font-weight:600;font-size:1.2rem;color:var(--moon-50);
-  display:inline-block;min-width:3.4rem;margin-right:0.4rem;
+.gerald-count-num{
+  display:block;font-family:var(--mono);font-weight:600;
+  font-size:2.7rem;line-height:1;color:var(--amber-300);
 }
+.gerald-count-label{display:block;margin-top:0.45rem;font-size:0.82rem;color:var(--data-soft);}
 
-/* ---- Car stat cards ---- */
+/* ---- Number cards: one row ---- */
 .data-stat-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(170px,1fr));
-  gap:0.9rem;
+  grid-template-columns:repeat(4,1fr);
+  gap:0.8rem;
   max-width:none;
-  margin:0 0 2rem;
+  margin:0 0 1.25rem;
   text-align:left;
 }
 .data-stat-grid .stat-card{
   background:var(--data-card);
   border:1px solid var(--data-border);
-  padding:1.2rem;
+  padding:1.1rem 1rem;
 }
-.data-stat-grid .stat-number{color:var(--amber-300);font-size:1.7rem;}
-.data-stat-grid .stat-label{color:var(--data-soft);font-weight:500;font-size:0.85rem;margin:0;}
+.data-stat-grid .stat-number{color:var(--amber-300);font-size:1.55rem;margin-bottom:0.4rem;}
+.data-stat-grid .stat-label{color:var(--data-soft);font-weight:500;font-size:0.8rem;line-height:1.35;margin:0;}
 
 /* ---- Overnight chart ---- */
 .chart-card{
@@ -689,7 +695,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   border:1px solid var(--data-border);
   border-radius:var(--radius);
   padding:1.5rem;
-  margin-bottom:1.5rem;
+  margin-bottom:1.25rem;
 }
 .chart-card-header{margin-bottom:1rem;}
 .chart-card-header h3{font-family:var(--display);font-weight:600;font-size:1.2rem;margin:0 0 0.4rem;color:var(--moon-50);}
@@ -709,7 +715,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 .legend-dash{width:14px;height:0;border-top:2px dashed #F0A98C;}
 .legend-dot{width:10px;height:10px;border-radius:50%;}
 
-/* ---- Event detail (below the chart) ---- */
+/* ---- Recording (below the chart) ---- */
 .event-detail{
   background:var(--data-card);
   border:1px solid var(--data-border);
@@ -720,7 +726,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 .event-detail-empty{color:var(--data-soft);font-size:0.92rem;margin:0;}
 .event-detail-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+  grid-template-columns:repeat(auto-fit, minmax(118px,1fr));
   gap:1rem;
   margin-bottom:1.25rem;
 }
@@ -728,7 +734,7 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
   font-family:var(--mono);font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;
   color:var(--data-faint);margin:0 0 0.3rem;
 }
-.event-detail-value{font-family:var(--display);font-size:1.4rem;font-weight:600;margin:0;color:var(--moon-50);}
+.event-detail-value{font-family:var(--display);font-size:1.25rem;font-weight:600;margin:0;color:var(--moon-50);}
 
 /* Per-car mini chart. The wrapper has a fixed height and the canvas is
    absolutely positioned, so the canvas can never change its own size. */
@@ -778,6 +784,10 @@ h1,h2{font-family:var(--display);font-weight:600;margin:0;}
 
 @media(max-width:560px){
   .gerald-status{flex-direction:column;text-align:center;}
-  .night-stats-list{align-items:center;}
+  .gerald-status-count{
+    border-left:none;border-top:1px solid var(--data-border);
+    padding:1rem 0 0;width:100%;
+  }
+  .data-stat-grid{grid-template-columns:repeat(2,1fr);}
   .chart-wrap{height:260px;}
 }
