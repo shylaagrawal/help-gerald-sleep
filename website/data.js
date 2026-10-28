@@ -257,8 +257,6 @@ async function loadNight(date) {
         time: new Date(f.centroid_timestamp),
         isolatedDb: parseFloat(f.isolated_db_a),
         exceedsWho: f.exceeds_who_45db_threshold === 'True',
-        confidence: parseFloat(f.vehicle_confidence),
-        topClass: f.top_class,
         note: f.isolation_note,
       };
     })
@@ -282,18 +280,18 @@ async function loadNight(date) {
   }
 
   renderGeraldStatus(currentNight, true);
-  renderCarStats(currentNight);
+  renderStatCards(currentNight);
   clearEventDetail();
   drawChart();
 }
 
-// ---------- Gerald status banner ----------
+// ---------- Gerald status banner (headline left, car count right) ----------
 
 function renderGeraldStatus(night, isValid) {
   const badge = document.getElementById('geraldBadge');
   const title = document.getElementById('geraldTitle');
   const desc = document.getElementById('geraldDesc');
-  const stats = document.getElementById('nightStats');
+  const countBox = document.getElementById('geraldCount');
 
   if (!isValid) {
     badge.textContent = 'No data';
@@ -301,16 +299,12 @@ function renderGeraldStatus(night, isValid) {
     title.textContent = "Gerald's numbers are missing for this night";
     desc.textContent = 'Nothing usable was recorded -- see the note below.';
     desc.style.display = 'block';
-    stats.style.display = 'none';
+    countBox.style.display = 'none';
     return;
   }
 
-  // Whole-night numbers, written plainly inside the banner itself.
-  const rawVals = night.raw.map(r => r.db);
-  document.getElementById('statNightAvg').textContent = arrMean(rawVals).toFixed(1);
-  document.getElementById('statNightLoudest').textContent = arrMax(rawVals).toFixed(1);
-  document.getElementById('statNightQuietest').textContent = arrMin(rawVals).toFixed(1);
-  stats.style.display = 'block';
+  document.getElementById('statEvents').textContent = night.events.length;
+  countBox.style.display = '';
 
   if (!night.events.length) {
     badge.textContent = 'No events';
@@ -339,22 +333,18 @@ function renderGeraldStatus(night, isValid) {
   }
 }
 
-// ---------- car stat cards ----------
+// ---------- stat cards: average car + the three whole-night numbers ----------
 
-function renderCarStats(night) {
+function renderStatCards(night) {
   const events = night.events;
-  document.getElementById('statEvents').textContent = events.length;
+  document.getElementById('statAvgCar').textContent = events.length
+    ? arrMean(events.map(e => e.isolatedDb)).toFixed(1)
+    : '—';
 
-  if (events.length) {
-    const vals = events.map(e => e.isolatedDb);
-    document.getElementById('statLoudestCar').textContent = arrMax(vals).toFixed(1);
-    document.getElementById('statQuietestCar').textContent = arrMin(vals).toFixed(1);
-    document.getElementById('statAvgCar').textContent = arrMean(vals).toFixed(1);
-  } else {
-    document.getElementById('statLoudestCar').textContent = '—';
-    document.getElementById('statQuietestCar').textContent = '—';
-    document.getElementById('statAvgCar').textContent = '—';
-  }
+  const rawVals = night.raw.map(r => r.db);
+  document.getElementById('statNightAvg').textContent = arrMean(rawVals).toFixed(1);
+  document.getElementById('statNightLoudest').textContent = arrMax(rawVals).toFixed(1);
+  document.getElementById('statNightQuietest').textContent = arrMin(rawVals).toFixed(1);
 }
 
 // ---------- event detail + audio + synced mini chart ----------
@@ -393,13 +383,20 @@ function selectEvent(eventId) {
   document.getElementById('eventDetailBody').style.display = 'block';
   document.getElementById('detailTime').textContent = fmtTime(event.time);
   document.getElementById('detailDb').textContent = `${event.isolatedDb.toFixed(1)} dB(A)`;
-  document.getElementById('detailConfidence').textContent = `${(event.confidence * 100).toFixed(1)}%`;
+
+  // Lowest / highest of the real per-second readings in this clip's window.
+  const sliceDb = selectedSlice.map(r => r.db);
+  document.getElementById('detailLow').textContent = sliceDb.length ? `${arrMin(sliceDb).toFixed(1)} dB(A)` : '—';
+  document.getElementById('detailHigh').textContent = sliceDb.length ? `${arrMax(sliceDb).toFixed(1)} dB(A)` : '—';
 
   const note = document.getElementById('detailNote');
-  const baseNote = event.note && event.note !== 'ok'
-    ? `Note: ${event.note}`
-    : `Classifier's closest match: ${event.topClass || 'unknown'}.`;
-  note.textContent = baseNote;
+  if (event.note && event.note !== 'ok') {
+    note.textContent = `Note: ${event.note}`;
+    note.style.display = 'block';
+  } else {
+    note.textContent = '';
+    note.style.display = 'none';
+  }
 
   const audio = document.getElementById('eventAudio');
   audio.pause();
@@ -418,6 +415,7 @@ function selectEvent(eventId) {
           playBtn.textContent = '▶ Play clip';
           stopPlayheadLoop();
           note.textContent = "Couldn't load this clip's audio.";
+          note.style.display = 'block';
         });
       }
     } else {
@@ -435,7 +433,7 @@ function selectEvent(eventId) {
   drawChart();
   drawEventMiniChart(event, null);
 
-  document.getElementById('eventDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('eventDetail').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 // Real per-second readings around the car, to match the clip's ~15s window.
