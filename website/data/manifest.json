@@ -82,5 +82,12 @@
     "peak_isolated_db": 85.5,
     "violations_45db": 22,
     "avg_isolated_db": 73.3
+  },
+  {
+    "date": "2026-10-29",
+    "events": 15,
+    "peak_isolated_db": 79.9,
+    "violations_45db": 15,
+    "avg_isolated_db": 73.8
   }
 ]
