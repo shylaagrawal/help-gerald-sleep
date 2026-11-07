@@ -1,0 +1,2 @@
+event_id,start,end,loud_duration_seconds,peak_time,peak_db,baseline_db,clip_window_start,clip_window_end,clip_duration_seconds,clip_file,top_class,top_class_confidence,vehicle_confidence,vehicle_matched_class,is_vehicle
+0,2026-11-07T01:29:48,2026-11-07T01:29:58,10.0,2026-11-07T01:29:50,81.9,51.73,2026-11-07T01:29:33,2026-11-07T01:30:13,40.0,/home/shyla_agrawal/gerald_night_data/night_2026-11-06/peak_audio_clips_2026-11-06/2026-11-07_01-29-50.wav,Silence,0.2503,0.0365,Vehicle,True
