@@ -124,5 +124,12 @@
     "peak_isolated_db": 77.6,
     "violations_45db": 1,
     "avg_isolated_db": 77.6
+  },
+  {
+    "date": "2026-11-07",
+    "events": 7,
+    "peak_isolated_db": 79.9,
+    "violations_45db": 7,
+    "avg_isolated_db": 74.2
   }
 ]

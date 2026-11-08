@@ -16,3 +16,4 @@ night_2026-11-03_summary.zip
 night_2026-11-04_summary.zip
 night_2026-11-05_summary.zip
 night_2026-11-06_summary.zip
+night_2026-11-07_summary.zip

@@ -1,0 +1,8 @@
+event_id,centroid_timestamp,isolated_db_a,isolation_note,used_raw_peak_fallback,vehicle_confidence,top_class,exceeds_who_45db_threshold,raw_peak_db,raw_baseline_db
+2,2026-11-08T00:52:50.381,79.88,ok,False,0.1199,Silence,True,84.66,55.33
+3,2026-11-08T01:28:53.001,68.77,ok,False,0.043,"Outside, rural or natural",True,69.25,53.73
+4,2026-11-08T01:50:59.254,75.42,ok,False,0.0527,Silence,True,76.68,55.35
+5,2026-11-08T02:12:17.634,73.84,ok,False,0.0477,Silence,True,77.49,53.8
+6,2026-11-08T02:56:14.867,70.38,ok,False,0.0578,Silence,True,75.52,51.0
+7,2026-11-08T02:56:30.277,73.59,ok,False,0.0535,Fire,True,81.27,51.77
+8,2026-11-08T06:28:25.492,77.73,ok,False,0.0898,"Outside, rural or natural",True,80.65,55.63
