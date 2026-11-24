@@ -1,0 +1,43 @@
+name: Gerald watchdog
+
+# Fails (and so makes GitHub email you) if last night's recording never
+# reached Google Drive. Runs once a day at 20:00 UTC, which is noon PST /
+# 1 PM PDT -- always well after the Pi's ~6:31 AM upload. The "yesterday"
+# date is worked out in Pacific time, so daylight saving can't throw it off.
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install rclone
+        run: curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: Configure rclone
+        env:
+          RCLONE_CONF: ${{ secrets.RCLONE_CONF }}
+        run: |
+          mkdir -p ~/.config/rclone
+          printf '%s' "$RCLONE_CONF" > ~/.config/rclone/rclone.conf
+
+      - name: Check last night's zip is in Drive
+        run: |
+          expected=$(TZ=America/Los_Angeles date -d 'yesterday' +%F)
+          latest=$(rclone lsf gdrive:gerald_backups/ --include "*.zip" --files-only \
+                   | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | sort | tail -1)
+          echo "Expected night: $expected"
+          echo "Newest night in Drive: ${latest:-none}"
+          if [ -z "$latest" ]; then
+            echo "::error::Gerald alert: no recordings found in Google Drive at all."
+            exit 1
+          fi
+          if [[ "$latest" < "$expected" ]]; then
+            echo "::error::Gerald alert: no upload for $expected. Newest in Drive is $latest. Check the Pi (power, Wi-Fi, ~/morning_pipeline.log)."
+            exit 1
+          fi
+          echo "OK: Gerald is reporting in."
