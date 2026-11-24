@@ -1,0 +1,7 @@
+{
+  "slope": 0.9858,
+  "intercept": -63.1248,
+  "r2": 0.9737,
+  "method": "point-by-point (v1, known timing limitation - see writeup)",
+  "note": "Gerald's live reading and the phone reading were not guaranteed to be captured at the exact same instant; documented as a limitation rather than corrected."
+}
