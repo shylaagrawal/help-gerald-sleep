@@ -1,56 +1,6 @@
 // ============================================
-// Help Gerald Sleep — counter + sticky CTA
+// Help Gerald Sleep — sticky CTA + mobile nav
 // ============================================
-
-// The counter reads how many supporters to show from your Google Apps Script
-// endpoint, which returns only the row count from your form's response
-// sheet — never names, addresses, or signature photos. If that fails for
-// any reason (endpoint down, not deployed yet, etc.), it falls back to the
-// number in counter.json so the page never breaks.
-const COUNTER_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz10hRsSAU52UgowbcbOudLwOu6WCEQN8MlyOBATrLf-IHpZ584bBYTQhLBfddJpKpP/exec';
-
-async function loadCounter() {
-  const el = document.getElementById('counterNumber');
-  let target = parseInt(el.dataset.target, 10) || 0;
-
-  try {
-    const res = await fetch(COUNTER_ENDPOINT, { cache: 'no-store' });
-    if (res.ok) {
-      const data = await res.json();
-      if (typeof data.count === 'number') target = data.count;
-    } else {
-      throw new Error('Apps Script endpoint returned an error');
-    }
-  } catch (err) {
-    // Apps Script endpoint unreachable — fall back to the manually
-    // edited counter.json instead.
-    try {
-      const res = await fetch('counter.json', { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        if (typeof data.count === 'number') target = data.count;
-      }
-    } catch (err2) {
-      // both sources unreachable — fall back to the data-target value
-      // already on the element.
-    }
-  }
-
-  animateCount(el, target);
-}
-
-function animateCount(el, target) {
-  const duration = 1200;
-  const start = performance.now();
-
-  function tick(now) {
-    const progress = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.round(eased * target).toLocaleString();
-    if (progress < 1) requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-}
 
 // Sticky "sign the petition" button appears once the hero is scrolled past.
 function initStickyCta() {
@@ -65,7 +15,6 @@ function initStickyCta() {
   }, { passive: true });
 }
 
-loadCounter();
 initStickyCta();
 
 // Mobile nav toggle
