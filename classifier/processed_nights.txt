@@ -20,4 +20,10 @@ night_2026-11-07_summary.zip
 night_2026-11-08_summary.zip
 night_2026-11-09_summary.zip
 night_2026-11-10_summary.zip
+night_2026-11-11_summary.zip
+night_2026-11-12_summary.zip
+night_2026-11-13_summary.zip
+night_2026-11-14_summary.zip
+night_2026-11-15_summary.zip
+night_2026-11-16_summary.zip
 night_2026-11-18_summary.zip

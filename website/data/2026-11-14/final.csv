@@ -1,0 +1,5 @@
+event_id,centroid_timestamp,isolated_db_a,isolation_note,used_raw_peak_fallback,vehicle_confidence,top_class,exceeds_who_45db_threshold,raw_peak_db,raw_baseline_db
+0,2026-11-15T00:33:12.224,71.69,ok,False,0.0279,Animal,True,72.91,52.39
+1,2026-11-15T01:04:31.961,78.57,ok,False,0.0807,Silence,True,82.78,54.39
+2,2026-11-15T01:39:21.036,80.67,ok,False,0.1018,Silence,True,86.08,54.98
+3,2026-11-15T05:46:18.215,76.76,ok,False,0.0547,Silence,True,80.03,53.92

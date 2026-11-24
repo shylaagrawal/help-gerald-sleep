@@ -1,0 +1,13 @@
+event_id,centroid_timestamp,isolated_db_a,isolation_note,used_raw_peak_fallback,vehicle_confidence,top_class,exceeds_who_45db_threshold,raw_peak_db,raw_baseline_db
+0,2026-11-17T00:32:22.768,72.68,ok,False,0.0508,Silence,True,73.96,54.66
+1,2026-11-17T04:04:29.766,69.8,ok,False,0.0936,"Outside, rural or natural",True,71.26,53.85
+2,2026-11-17T04:41:01.396,77.06,ok,False,0.0559,Silence,True,80.74,52.97
+3,2026-11-17T05:29:37.593,74.08,ok,False,0.0985,"Outside, rural or natural",True,77.11,55.71
+4,2026-11-17T05:58:28.588,78.91,ok,False,0.0932,Animal,True,81.35,58.79
+5,2026-11-17T06:03:41.112,70.4,ok,False,0.1178,"Outside, rural or natural",True,71.61,55.09
+6,2026-11-17T06:05:15.188,81.27,ok,False,0.2342,Vehicle,True,86.78,57.36
+7,2026-11-17T06:15:46.656,77.33,ok,False,0.1927,Vehicle,True,79.29,58.17
+8,2026-11-17T06:17:23.262,72.97,ok,False,0.1098,"Outside, rural or natural",True,74.76,56.11
+9,2026-11-17T06:20:41.473,72.6,ok,False,0.2074,Vehicle,True,78.61,55.74
+10,2026-11-17T06:20:55.135,72.56,ok,False,0.2491,Vehicle,True,78.98,56.49
+11,2026-11-17T06:22:30.157,82.8,ok,False,0.1692,Vehicle,True,86.17,58.63
