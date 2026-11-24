@@ -127,10 +127,10 @@
   },
   {
     "date": "2026-11-07",
-    "events": 7,
+    "events": 5,
     "peak_isolated_db": 79.9,
-    "violations_45db": 7,
-    "avg_isolated_db": 74.2
+    "violations_45db": 5,
+    "avg_isolated_db": 75.1
   },
   {
     "date": "2026-11-08",
