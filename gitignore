@@ -1,0 +1,20 @@
+# Raw audio never goes in the repo (only the short published mp3 clips do)
+*.wav
+*.zip
+
+# Credentials / local config
+rclone.conf
+.env
+*.json.key
+client_secret*.json
+token*.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
