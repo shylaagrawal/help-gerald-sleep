@@ -7,7 +7,7 @@ Gerald is a goose who can't sleep because of road noise, and he's a lot like the
 
 ## What Gerald does
 
-1. **Records.** A Raspberry Pi Zero W with an INMP441 microphone sits in a 3D-printed goose on my windowsill and records from midnight to 6:30 AM. Four LEDs light up when it hears something loud.
+1. **Records.** A Raspberry Pi Zero W with an INMP441 microphone sits in a 3D-printed goose on my windowsill and records from midnight to 6:30 AM. Four LEDs light up when it hears something loud. (Code: [`pi/`](pi).)
 2. **Finds the loud moments.** Each morning the Pi finds the moments that rise well above the quiet background, saves a short audio clip around each one, and uploads everything to Google Drive.
 3. **Identifies vehicles.** A GitHub Actions job downloads each new night and runs [YAMNet](https://tfhub.dev/google/yamnet/1), Google's pretrained sound classifier, on every clip to decide whether it was a vehicle.
 4. **Isolates each car.** The background noise just before and after each vehicle is subtracted (in power, not decibels, since decibels are logarithmic) to estimate how loud the vehicle itself was.
@@ -22,6 +22,7 @@ Pi (record + find peaks) → Google Drive → GitHub Actions (classify + analyze
 | Folder | What it holds |
 | --- | --- |
 | `website/` | The public site (HTML, CSS, JS) and the processed data it displays, one folder per night in `website/data/` |
+| `pi/` | The code that runs on Gerald's Raspberry Pi: recording, loud-event detection, the morning upload to Drive, plus calibration and hardware-test scripts. See [`pi/README.md`](pi/README.md). |
 | `classifier/` | The nightly analysis pipeline: `run_pipeline.py` runs `classify_clips.py` → `analyze_events.py` → `prepare_web_assets.py`. Per-night results are saved in `classifier/results/`. |
 | `3D_Gerald/` | Blender and STL files for Gerald's 3D-printed case |
 | `.github/workflows/` | `classify-nightly.yml` runs the pipeline on new nights. `gerald-watchdog.yml` emails me if a night's recording never reaches Drive. |
