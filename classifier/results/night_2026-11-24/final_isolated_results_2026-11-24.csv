@@ -1,0 +1,20 @@
+event_id,centroid_timestamp,isolated_db_a,isolation_note,used_raw_peak_fallback,vehicle_confidence,top_class,exceeds_who_45db_threshold,raw_peak_db,raw_baseline_db
+0,2026-11-25T00:10:14.481,75.88,ok,False,0.0642,"Inside, small room",True,78.6,53.81
+1,2026-11-25T00:16:50.527,75.28,ok,False,0.085,"Inside, small room",True,79.32,54.07
+2,2026-11-25T00:36:18.918,67.11,ok,False,0.0459,"Inside, small room",True,70.19,49.52
+3,2026-11-25T01:32:07.805,66.24,ok,False,0.0282,Silence,True,67.43,49.49
+4,2026-11-25T02:53:13.145,66.49,ok,False,0.0626,Silence,True,67.19,49.4
+5,2026-11-25T03:18:09.282,71.82,ok,False,0.1318,"Inside, small room",True,75.19,52.63
+6,2026-11-25T03:52:05.385,67.96,ok,False,0.0295,Silence,True,69.11,51.05
+7,2026-11-25T04:00:54.923,69.52,ok,False,0.1269,"Inside, small room",True,71.72,52.36
+8,2026-11-25T05:21:47.938,72.56,ok,False,0.0921,"Inside, small room",True,74.74,55.2
+9,2026-11-25T05:28:31.632,74.39,ok,False,0.1461,"Inside, small room",True,77.51,55.97
+10,2026-11-25T05:40:27.505,72.16,ok,False,0.0863,"Inside, small room",True,74.54,54.31
+11,2026-11-25T05:45:09.823,81.12,ok,False,0.1351,"Inside, small room",True,84.34,58.91
+12,2026-11-25T05:48:15.033,73.35,ok,False,0.2077,Vehicle,True,75.34,54.84
+13,2026-11-25T06:06:01.057,76.19,ok,False,0.1309,"Inside, small room",True,79.87,54.33
+14,2026-11-25T06:17:02.160,77.62,ok,False,0.258,Vehicle,True,79.3,61.83
+15,2026-11-25T06:17:57.965,82.75,ok,False,0.124,"Inside, small room",True,83.42,64.91
+16,2026-11-25T06:18:55.980,86.65,ok,False,0.1758,Vehicle,True,89.84,64.09
+17,2026-11-25T06:25:22.747,74.8,ok,False,0.1091,White noise,True,76.4,57.29
+18,2026-11-25T06:29:41.551,75.77,ok,False,0.1419,"Inside, small room",True,76.62,60.78
